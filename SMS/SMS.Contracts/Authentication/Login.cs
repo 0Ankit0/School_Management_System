@@ -1,5 +1,6 @@
 using FluentValidation;
 using System;
+using SMS.Contracts.Users;
 
 namespace SMS.Contracts.Authentication;
 

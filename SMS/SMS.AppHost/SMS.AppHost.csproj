@@ -11,16 +11,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SMS.ApiService\SMS.ApiService.csproj" />
-    <ProjectReference Include="..\SMS.Microservices.User\SMS.Microservices.User.csproj" />
-    <ProjectReference Include="..\SMS.Microservices.NotificationMessaging\SMS.Microservices.NotificationMessaging.csproj" />
-    <ProjectReference Include="..\SMS.Microservices.FileManagement\SMS.Microservices.FileManagement.csproj" />
-    <ProjectReference Include="..\SMS.Microservices.SchoolCore\SMS.Microservices.SchoolCore.csproj" />
-    <ProjectReference Include="..\SMS.ApiGateway\SMS.ApiGateway.csproj" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.3.1" />
+    <ProjectReference Include="..\Microservices\SMS.Microservices.FileManagement\SMS.Microservices.FileManagement.csproj" />
+    <ProjectReference Include="..\Microservices\SMS.Microservices.NotificationMessaging\SMS.Microservices.NotificationMessaging.csproj" />
+    <ProjectReference Include="..\Microservices\SMS.Microservices.SchoolCore\SMS.Microservices.SchoolCore.csproj" />
+    <ProjectReference Include="..\Microservices\SMS.Microservices.User\SMS.Microservices.User.csproj" />
   </ItemGroup>
 
 </Project>

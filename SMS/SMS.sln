@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Microservices.SchoolCor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Microservices.User", "Microservices\SMS.Microservices.User\SMS.Microservices.User.csproj", "{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.ApiGateway", "SMS.ApiGateway\SMS.ApiGateway.csproj", "{567219BF-96B6-3E0D-81D8-3757CB05A6CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{567219BF-96B6-3E0D-81D8-3757CB05A6CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{567219BF-96B6-3E0D-81D8-3757CB05A6CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{567219BF-96B6-3E0D-81D8-3757CB05A6CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{567219BF-96B6-3E0D-81D8-3757CB05A6CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

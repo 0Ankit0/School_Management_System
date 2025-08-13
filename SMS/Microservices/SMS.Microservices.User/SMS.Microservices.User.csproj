@@ -22,8 +22,10 @@
 
   <ItemGroup>
     
-    <ProjectReference Include="..\SMS.Contracts\SMS.Contracts.csproj" />
-    <ProjectReference Include="..\SMS.ServiceDefaults\SMS.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\..\SMS.Contracts\SMS.Contracts.csproj" />
+    
+    <ProjectReference Include="..\..\SMS.ServiceDefaults\SMS.ServiceDefaults.csproj" />
+    
   </ItemGroup>
 
 </Project>
