@@ -1,0 +1,6 @@
+@SMS.Microservices.NotificationMessaging_HostAddress = http://localhost:5086
+
+GET {{SMS.Microservices.NotificationMessaging_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
