@@ -14,6 +14,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.UI.Shared", "SMS.UI\SMS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.UI.Web", "SMS.UI\SMS.UI.Web\SMS.UI.Web.csproj", "{D6CE2A8C-E554-43F4-B71F-058B1B6F80B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Contracts", "SMS.Contracts\SMS.Contracts.csproj", "{027EE29C-6165-7467-BB7D-A210801E260D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Microservices.FileManagement", "Microservices\SMS.Microservices.FileManagement\SMS.Microservices.FileManagement.csproj", "{286B1AD6-5950-8F79-D473-AD8AE5FFAF11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Microservices.NotificationMessaging", "Microservices\SMS.Microservices.NotificationMessaging\SMS.Microservices.NotificationMessaging.csproj", "{A0BF82DF-CA72-5AE7-69DA-DB1B563741A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Microservices.SchoolCore", "Microservices\SMS.Microservices.SchoolCore\SMS.Microservices.SchoolCore.csproj", "{F88454FF-92F4-4CE8-1A30-F33634C46228}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Microservices.User", "Microservices\SMS.Microservices.User\SMS.Microservices.User.csproj", "{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +55,26 @@ Global
 		{D6CE2A8C-E554-43F4-B71F-058B1B6F80B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6CE2A8C-E554-43F4-B71F-058B1B6F80B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6CE2A8C-E554-43F4-B71F-058B1B6F80B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{027EE29C-6165-7467-BB7D-A210801E260D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{027EE29C-6165-7467-BB7D-A210801E260D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{027EE29C-6165-7467-BB7D-A210801E260D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{027EE29C-6165-7467-BB7D-A210801E260D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{286B1AD6-5950-8F79-D473-AD8AE5FFAF11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{286B1AD6-5950-8F79-D473-AD8AE5FFAF11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{286B1AD6-5950-8F79-D473-AD8AE5FFAF11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{286B1AD6-5950-8F79-D473-AD8AE5FFAF11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0BF82DF-CA72-5AE7-69DA-DB1B563741A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0BF82DF-CA72-5AE7-69DA-DB1B563741A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0BF82DF-CA72-5AE7-69DA-DB1B563741A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0BF82DF-CA72-5AE7-69DA-DB1B563741A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F88454FF-92F4-4CE8-1A30-F33634C46228}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F88454FF-92F4-4CE8-1A30-F33634C46228}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F88454FF-92F4-4CE8-1A30-F33634C46228}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F88454FF-92F4-4CE8-1A30-F33634C46228}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BE521BE-9783-5B5C-BC50-37D8CEE3291D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
