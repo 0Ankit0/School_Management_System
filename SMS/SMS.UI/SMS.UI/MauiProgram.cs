@@ -16,6 +16,11 @@ namespace SMS.UI
 
             builder.Services.AddMauiBlazorWebView();
 
+            builder.Services.AddHttpClient("ApiGateway", client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5000");
+            });
+
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();

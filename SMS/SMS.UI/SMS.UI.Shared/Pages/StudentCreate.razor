@@ -1,0 +1,52 @@
+@page "/students/create"
+@using SMS.Contracts.Students
+@using System.Net.Http.Json
+
+<h3>Create Student</h3>
+
+<EditForm Model="createStudentRequest" OnValidSubmit="HandleCreate">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="firstName">First Name</label>
+        <InputText id="firstName" class="form-control" @bind-Value="createStudentRequest.FirstName" />
+    </div>
+
+    <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <InputText id="lastName" class="form-control" @bind-Value="createStudentRequest.LastName" />
+    </div>
+
+    <div class="form-group">
+        <label for="dateOfBirth">Date of Birth</label>
+        <InputDate id="dateOfBirth" class="form-control" @bind-Value="createStudentRequest.DateOfBirth" />
+    </div>
+
+    <div class="form-group">
+        <label for="gender">Gender</label>
+        <InputText id="gender" class="form-control" @bind-Value="createStudentRequest.Gender" />
+    </div>
+
+    <div class="form-group">
+        <label for="address">Address</label>
+        <InputText id="address" class="form-control" @bind-Value="createStudentRequest.Address" />
+    </div>
+
+    <div class="form-group">
+        <label for="phone">Phone</label>
+        <InputText id="phone" class="form-control" @bind-Value="createStudentRequest.Phone" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="createStudentRequest.Email" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info">@message</div>
+}

@@ -1,0 +1,21 @@
+@page "/users/{id:guid}"
+@using SMS.Contracts.Users
+@using System.Net.Http.Json
+
+<h3>User Details</h3>
+
+@if (user == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <p><strong>Username:</strong> @user.Username</p>
+        <p><strong>First Name:</strong> @user.FirstName</p>
+        <p><strong>Last Name:</strong> @user.LastName</p>
+        <p><strong>Role:</strong> @user.RoleName</p>
+    </div>
+    <a href="/users/edit/@user.Id" class="btn btn-primary">Edit</a>
+    <a href="/users" class="btn btn-secondary">Back to List</a>
+}
