@@ -1,6 +1,6 @@
 using AutoMapper;
-using SMS.Data.Models;
 using SMS.Contracts.Users;
+using SMS.Microservices.User.Models;
 
 namespace SMS.Microservices.User.MappingProfiles;
 
@@ -8,7 +8,7 @@ public class UserMappingProfile : Profile
 {
     public UserMappingProfile()
     {
-        CreateMap<User, UserResponse>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ExternalId));
+        CreateMap<ApplicationUser, UserResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
     }
 }
