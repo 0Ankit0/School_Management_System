@@ -27,9 +27,9 @@ public class CreateAnnouncementRequestValidator : AbstractValidator<CreateAnnoun
 public class AnnouncementResponse
 {
     public Guid Id { get; set; }
-    public string Title { get; set; }
-    public string Content { get; set; }
+    public string? Title { get; set; }
+    public string? Content { get; set; }
     public DateTime PublishDate { get; set; }
     public DateTime? ExpiryDate { get; set; }
-    public string TargetAudience { get; set; }
+    public string? TargetAudience { get; set; }
 }

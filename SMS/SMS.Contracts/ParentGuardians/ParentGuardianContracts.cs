@@ -5,10 +5,10 @@ namespace SMS.Contracts.ParentGuardians;
 
 public class CreateParentGuardianRequest
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
 }
 
 public class CreateParentGuardianRequestValidator : AbstractValidator<CreateParentGuardianRequest>
@@ -25,19 +25,19 @@ public class CreateParentGuardianRequestValidator : AbstractValidator<CreatePare
 public class ParentGuardianResponse
 {
     public Guid Id { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
 }
 
 public class UpdateParentGuardianRequest
 {
     public Guid ExternalId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
+    public string? Phone { get; set; }
 }
 
 public class UpdateParentGuardianRequestValidator : AbstractValidator<UpdateParentGuardianRequest>

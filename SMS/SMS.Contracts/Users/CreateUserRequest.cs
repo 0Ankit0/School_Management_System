@@ -5,12 +5,12 @@ namespace SMS.Contracts.Users;
 
 public class CreateUserRequest
 {
-    public string Username { get; set; }
-    public string Password { get; set; }
-    public string ConfirmPassword { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public int RoleId { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
+    public string? ConfirmPassword { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public Guid RoleId { get; set; }
 }
 
 public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
@@ -22,6 +22,6 @@ public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
         RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage("Passwords do not match.");
         RuleFor(x => x.FirstName).NotEmpty().MaximumLength(50);
         RuleFor(x => x.LastName).NotEmpty().MaximumLength(50);
-        RuleFor(x => x.RoleId).GreaterThan(0).WithMessage("Role is required.");
+        RuleFor(x => x.RoleId).NotEmpty().WithMessage("Role is required.");
     }
 }

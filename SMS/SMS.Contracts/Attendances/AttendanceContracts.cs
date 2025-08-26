@@ -7,8 +7,8 @@ public class CreateAttendanceRequest
 {
     public Guid StudentExternalId { get; set; }
     public DateTime Date { get; set; }
-    public string Status { get; set; }
-    public string Notes { get; set; }
+    public string? Status { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class CreateAttendanceRequestValidator : AbstractValidator<CreateAttendanceRequest>
@@ -26,18 +26,18 @@ public class AttendanceResponse
 {
     public Guid Id { get; set; }
     public Guid StudentExternalId { get; set; }
-    public string StudentFullName { get; set; }
+    public string? StudentFullName { get; set; }
     public DateTime Date { get; set; }
-    public string Status { get; set; }
-    public string Notes { get; set; }
+    public string? Status { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class UpdateAttendanceRequest
 {
     public Guid ExternalId { get; set; }
     public DateTime Date { get; set; }
-    public string Status { get; set; }
-    public string Notes { get; set; }
+    public string? Status { get; set; }
+    public string? Notes { get; set; }
 }
 
 public class UpdateAttendanceRequestValidator : AbstractValidator<UpdateAttendanceRequest>

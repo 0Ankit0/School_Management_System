@@ -24,9 +24,9 @@ public class AssignmentSubmissionResponse
 {
     public Guid Id { get; set; }
     public Guid AssignmentExternalId { get; set; }
-    public string AssignmentTitle { get; set; }
+    public string? AssignmentTitle { get; set; }
     public Guid StudentExternalId { get; set; }
-    public string StudentFullName { get; set; }
-    public string FileName { get; set; }
+    public string? StudentFullName { get; set; }
+    public string? FileName { get; set; }
     public DateTime SubmittedAt { get; set; }
 }

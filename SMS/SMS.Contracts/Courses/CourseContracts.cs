@@ -5,9 +5,9 @@ namespace SMS.Contracts.Courses;
 
 public class CreateCourseRequest
 {
-    public string CourseCode { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public string? CourseCode { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
     public int Credits { get; set; }
     public Guid TeacherExternalId { get; set; }
 }
@@ -27,10 +27,10 @@ public class CreateCourseRequestValidator : AbstractValidator<CreateCourseReques
 public class CourseResponse
 {
     public Guid Id { get; set; }
-    public string CourseCode { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public string? CourseCode { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
     public int Credits { get; set; }
     public Guid TeacherExternalId { get; set; }
-    public string TeacherFullName { get; set; }
+    public string? TeacherFullName { get; set; }
 }
