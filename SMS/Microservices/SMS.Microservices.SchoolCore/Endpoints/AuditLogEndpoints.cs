@@ -8,6 +8,7 @@ using Dapper;
 using System.Data;
 using Npgsql;
 using SMS.ServiceDefaults;
+using Microsoft.AspNetCore.Routing;
 
 namespace SMS.Microservices.SchoolCore.Endpoints;
 

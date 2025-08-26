@@ -8,6 +8,7 @@ using Dapper;
 using System.Data;
 using Npgsql;
 using SMS.ServiceDefaults;
+using Microsoft.AspNetCore.Routing;
 
 namespace SMS.Microservices.SchoolCore.Endpoints;
 
@@ -53,10 +54,23 @@ public class AssignmentSubmissionEndpoints : IEndpoint
         SchoolCoreDbContext context,
         IMapper mapper)
     {
-        var submission = mapper.Map<AssignmentSubmission>(request);
+        var submission = new AssignmentSubmission
+        {
+            Id = Guid.NewGuid(),
+            ExternalId = Guid.NewGuid(),
+            AssignmentId = request.AssignmentExternalId,
+            StudentId = request.StudentExternalId,
+            FileName = request.FileName,
+            SubmittedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            CreatedBy = Guid.NewGuid(), // Replace with actual user ID
+            UpdatedBy = Guid.NewGuid() // Replace with actual user ID
+        };
+
         context.AssignmentSubmissions.Add(submission);
         await context.SaveChangesAsync();
 
-        return Results.CreatedAtRoute("GetAssignmentSubmission", new { id = submission.ExternalId }, mapper.Map<AssignmentSubmissionResponse>(submission));
+        return Results.Created($"/api/assignmentsubmissions/{submission.ExternalId}", mapper.Map<AssignmentSubmissionResponse>(submission));
     }
 }
