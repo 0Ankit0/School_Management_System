@@ -113,7 +113,24 @@ public class UserResponse
 }
 ```
 
-## 4. Student Management Contracts
+## 4. Roles Management Contracts
+
+### 4.1. Role Response
+
+#### `RoleResponse`
+
+Returned when fetching role details.
+
+```csharp
+public class RoleResponse
+{
+    public int Id { get; set; }
+    public Guid ExternalId { get; set; }
+    public string Name { get; set; }
+}
+```
+
+## 5. Student Management Contracts
 
 ### 4.1. Student Creation
 
