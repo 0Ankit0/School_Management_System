@@ -1,24 +1,24 @@
+// Set environment variable for Aspire dashboard OTLP endpoint
+Environment.SetEnvironmentVariable("DOTNET_DASHBOARD_OTLP_ENDPOINT_URL", "http://localhost:4317");
+Environment.SetEnvironmentVariable("ASPIRE_ALLOW_UNSECURED_TRANSPORT", "true");
+
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Add the microservices
-var userService = builder.AddProject<Projects.SMS_Microservices_User>("userservice")
-    .WithHttpEndpoint(port: 5001, name: "http"); // Explicitly define HTTP endpoint for API Gateway
-
-var notificationMessagingService = builder.AddProject<Projects.SMS_Microservices_NotificationMessaging>("notificationmessagingservice")
-    .WithHttpEndpoint(port: 5002, name: "http"); // Explicitly define HTTP endpoint for API Gateway
-
-var fileManagementService = builder.AddProject<Projects.SMS_Microservices_FileManagement>("filemanagementservice")
-    .WithHttpEndpoint(port: 5003, name: "http"); // Explicitly define HTTP endpoint for API Gateway
-
-var schoolCoreService = builder.AddProject<Projects.SMS_Microservices_SchoolCore>("schoolcoreservice")
-    .WithHttpEndpoint(port: 5004, name: "http"); // Explicitly define HTTP endpoint for API Gateway
+// Add the microservices using project path references
+var userService = builder.AddProject("userservice", "../Microservices/SMS.Microservices.User/SMS.Microservices.User.csproj");
+var notificationMessagingService = builder.AddProject("notificationmessagingservice", "../Microservices/SMS.Microservices.NotificationMessaging/SMS.Microservices.NotificationMessaging.csproj");
+var fileManagementService = builder.AddProject("filemanagementservice", "../Microservices/SMS.Microservices.FileManagement/SMS.Microservices.FileManagement.csproj");
+var schoolCoreService = builder.AddProject("schoolcoreservice", "../Microservices/SMS.Microservices.SchoolCore/SMS.Microservices.SchoolCore.csproj");
 
 // Add the API Gateway
-builder.AddProject<Projects.SMS_ApiGateway>("apigateway")
+var apiGateway = builder.AddProject("apigateway", "../SMS.ApiGateway/SMS.ApiGateway.csproj")
     .WithReference(userService)
     .WithReference(notificationMessagingService)
     .WithReference(fileManagementService)
-    .WithReference(schoolCoreService)
-    .WithHttpEndpoint(port: 5000, name: "http"); // API Gateway will run on port 5000
+    .WithReference(schoolCoreService);
+
+// Add the UI
+builder.AddProject("sms-ui-web", "../SMS.UI/SMS.UI.Web/SMS.UI.Web.csproj")
+    .WithReference(apiGateway);
 
 builder.Build().Run();

@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Microservices.User", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.ApiGateway", "SMS.ApiGateway\SMS.ApiGateway.csproj", "{567219BF-96B6-3E0D-81D8-3757CB05A6CC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMS.Data", "SMS.Data\SMS.Data.csproj", "{6A9933D5-FB4C-6B3A-D28E-E037EA7F2CE7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{567219BF-96B6-3E0D-81D8-3757CB05A6CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{567219BF-96B6-3E0D-81D8-3757CB05A6CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{567219BF-96B6-3E0D-81D8-3757CB05A6CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A9933D5-FB4C-6B3A-D28E-E037EA7F2CE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A9933D5-FB4C-6B3A-D28E-E037EA7F2CE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A9933D5-FB4C-6B3A-D28E-E037EA7F2CE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A9933D5-FB4C-6B3A-D28E-E037EA7F2CE7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
