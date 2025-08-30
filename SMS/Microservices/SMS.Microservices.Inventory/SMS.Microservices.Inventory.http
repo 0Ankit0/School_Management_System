@@ -1,0 +1,6 @@
+@SMS.Microservices.Inventory_HostAddress = http://localhost:5072
+
+GET {{SMS.Microservices.Inventory_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
