@@ -776,3 +776,778 @@ public class AuditLogResponse
 ---
 
 This document will be expanded with DTOs and validation rules for all other core entities and complex workflows as development progresses.
+
+## 15. Billing Management Contracts
+
+### 15.1. Invoice Creation
+
+#### `CreateInvoiceRequest`
+
+Used to create a new invoice.
+
+```csharp
+public class CreateInvoiceRequest
+{
+    public Guid StudentExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime DueDate { get; set; }
+    public List<CreateInvoiceItemRequest> Items { get; set; }
+}
+```
+
+**`CreateInvoiceRequestValidator`**
+
+```csharp
+public class CreateInvoiceRequestValidator : AbstractValidator<CreateInvoiceRequest>
+{
+    public CreateInvoiceRequestValidator()
+    {
+        RuleFor(x => x.StudentExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.DueDate).NotEmpty();
+        RuleForEach(x => x.Items).SetValidator(new CreateInvoiceItemRequestValidator());
+    }
+}
+```
+
+#### `InvoiceResponse`
+
+Returned when fetching invoice details.
+
+```csharp
+public class InvoiceResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public Guid StudentExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime DueDate { get; set; }
+    public DateTime? PaidDate { get; set; }
+    public List<InvoiceItemResponse> Items { get; set; }
+}
+```
+
+### 15.1.2. Invoice Update
+
+#### `UpdateInvoiceRequest`
+
+Used to update an existing invoice.
+
+```csharp
+public class UpdateInvoiceRequest
+{
+    public Guid Id { get; set; }
+    public Guid StudentExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime DueDate { get; set; }
+    public DateTime? PaidDate { get; set; }
+}
+```
+
+**`UpdateInvoiceRequestValidator`**
+
+```csharp
+public class UpdateInvoiceRequestValidator : AbstractValidator<UpdateInvoiceRequest>
+{
+    public UpdateInvoiceRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.StudentExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.DueDate).NotEmpty();
+    }
+}
+```
+
+### 15.2. Invoice Item Creation
+
+#### `CreateInvoiceItemRequest`
+
+Used to create a new invoice item.
+
+```csharp
+public class CreateInvoiceItemRequest
+{
+    public string Description { get; set; }
+    public decimal Amount { get; set; }
+}
+```
+
+**`CreateInvoiceItemRequestValidator`**
+
+```csharp
+public class CreateInvoiceItemRequestValidator : AbstractValidator<CreateInvoiceItemRequest>
+{
+    public CreateInvoiceItemRequestValidator()
+    {
+        RuleFor(x => x.Description).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Amount).GreaterThan(0);
+    }
+}
+```
+
+#### `InvoiceItemResponse`
+
+Returned when fetching invoice item details.
+
+```csharp
+public class InvoiceItemResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public string Description { get; set; }
+    public decimal Amount { get; set; }
+}
+```
+
+### 15.2.2. Invoice Item Update
+
+#### `UpdateInvoiceItemRequest`
+
+Used to update an existing invoice item.
+
+```csharp
+public class UpdateInvoiceItemRequest
+{
+    public Guid Id { get; set; }
+    public string Description { get; set; }
+    public decimal Amount { get; set; }
+}
+```
+
+**`UpdateInvoiceItemRequestValidator`**
+
+```csharp
+public class UpdateInvoiceItemRequestValidator : AbstractValidator<UpdateInvoiceItemRequest>
+{
+    public UpdateInvoiceItemRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Description).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Amount).GreaterThan(0);
+    }
+}
+```
+
+### 15.3. Payment Creation
+
+#### `CreatePaymentRequest`
+
+Used to create a new payment.
+
+```csharp
+public class CreatePaymentRequest
+{
+    public Guid InvoiceExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime PaymentDate { get; set; }
+}
+```
+
+**`CreatePaymentRequestValidator`**
+
+```csharp
+public class CreatePaymentRequestValidator : AbstractValidator<CreatePaymentRequest>
+{
+    public CreatePaymentRequestValidator()
+    {
+        RuleFor(x => x.InvoiceExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.PaymentDate).NotEmpty();
+    }
+}
+```
+
+#### `PaymentResponse`
+
+Returned when fetching payment details.
+
+```csharp
+public class PaymentResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public Guid InvoiceExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime PaymentDate { get; set; }
+}
+```
+
+### 15.3.2. Payment Update
+
+#### `UpdatePaymentRequest`
+
+Used to update an existing payment.
+
+```csharp
+public class UpdatePaymentRequest
+{
+    public Guid Id { get; set; }
+    public Guid InvoiceExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime PaymentDate { get; set; }
+}
+```
+
+**`UpdatePaymentRequestValidator`**
+
+```csharp
+public class UpdatePaymentRequestValidator : AbstractValidator<UpdatePaymentRequest>
+{
+    public UpdatePaymentRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.InvoiceExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.PaymentDate).NotEmpty();
+    }
+}
+```
+
+## 16. Library Management Contracts
+
+### 16.1. Book Creation
+
+#### `CreateBookRequest`
+
+Used to create a new book.
+
+```csharp
+public class CreateBookRequest
+{
+    public string Title { get; set; }
+    public string Author { get; set; }
+    public string ISBN { get; set; }
+    public DateTime PublishedDate { get; set; }
+    public int Quantity { get; set; }
+}
+```
+
+**`CreateBookRequestValidator`**
+
+```csharp
+public class CreateBookRequestValidator : AbstractValidator<CreateBookRequest>
+{
+    public CreateBookRequestValidator()
+    {
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Author).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.ISBN).NotEmpty().MaximumLength(20);
+        RuleFor(x => x.PublishedDate).NotEmpty();
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0);
+    }
+}
+```
+
+#### `BookResponse`
+
+Returned when fetching book details.
+
+```csharp
+public class BookResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public string Title { get; set; }
+    public string Author { get; set; }
+    public string ISBN { get; set; }
+    public DateTime PublishedDate { get; set; }
+    public int Quantity { get; set; }
+}
+```
+
+### 16.1.2. Book Update
+
+#### `UpdateBookRequest`
+
+Used to update an existing book.
+
+```csharp
+public class UpdateBookRequest
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; }
+    public string Author { get; set; }
+    public string ISBN { get; set; }
+    public DateTime PublishedDate { get; set; }
+    public int Quantity { get; set; }
+}
+```
+
+**`UpdateBookRequestValidator`**
+
+```csharp
+public class UpdateBookRequestValidator : AbstractValidator<UpdateBookRequest>
+{
+    public UpdateBookRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Author).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.ISBN).NotEmpty().MaximumLength(20);
+        RuleFor(x => x.PublishedDate).NotEmpty();
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0);
+    }
+}
+```
+
+### 16.2. Book Loan Creation
+
+#### `CreateBookLoanRequest`
+
+Used to create a new book loan.
+
+```csharp
+public class CreateBookLoanRequest
+{
+    public Guid BookExternalId { get; set; }
+    public Guid StudentExternalId { get; set; }
+    public DateTime DueDate { get; set; }
+}
+```
+
+**`CreateBookLoanRequestValidator`**
+
+```csharp
+public class CreateBookLoanRequestValidator : AbstractValidator<CreateBookLoanRequest>
+{
+    public CreateBookLoanRequestValidator()
+    {
+        RuleFor(x => x.BookExternalId).NotEmpty();
+        RuleFor(x => x.StudentExternalId).NotEmpty();
+        RuleFor(x => x.DueDate).NotEmpty();
+    }
+}
+```
+
+#### `BookLoanResponse`
+
+Returned when fetching book loan details.
+
+```csharp
+public class BookLoanResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public Guid BookExternalId { get; set; }
+    public Guid StudentExternalId { get; set; }
+    public DateTime LoanDate { get; set; }
+    public DateTime? ReturnDate { get; set; }
+    public DateTime DueDate { get; set; }
+}
+```
+
+### 16.2.2. Book Loan Update
+
+#### `UpdateBookLoanRequest`
+
+Used to update an existing book loan.
+
+```csharp
+public class UpdateBookLoanRequest
+{
+    public Guid Id { get; set; }
+    public Guid BookExternalId { get; set; }
+    public Guid StudentExternalId { get; set; }
+    public DateTime LoanDate { get; set; }
+    public DateTime? ReturnDate { get; set; }
+    public DateTime DueDate { get; set; }
+}
+```
+
+**`UpdateBookLoanRequestValidator`**
+
+```csharp
+public class UpdateBookLoanRequestValidator : AbstractValidator<UpdateBookLoanRequest>
+{
+    public UpdateBookLoanRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.BookExternalId).NotEmpty();
+        RuleFor(x => x.StudentExternalId).NotEmpty();
+        RuleFor(x => x.LoanDate).NotEmpty();
+        RuleFor(x => x.DueDate).NotEmpty();
+    }
+}
+```
+
+## 17. Inventory Management Contracts
+
+### 17.1. Inventory Item Creation
+
+#### `CreateInventoryItemRequest`
+
+Used to create a new inventory item.
+
+```csharp
+public class CreateInventoryItemRequest
+{
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public int Quantity { get; set; }
+    public DateTime PurchaseDate { get; set; }
+    public decimal PurchasePrice { get; set; }
+}
+```
+
+**`CreateInventoryItemRequestValidator`**
+
+```csharp
+public class CreateInventoryItemRequestValidator : AbstractValidator<CreateInventoryItemRequest>
+{
+    public CreateInventoryItemRequestValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Description).MaximumLength(500);
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.PurchaseDate).NotEmpty();
+        RuleFor(x => x.PurchasePrice).GreaterThanOrEqualTo(0);
+    }
+}
+```
+
+#### `InventoryItemResponse`
+
+Returned when fetching inventory item details.
+
+```csharp
+public class InventoryItemResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public int Quantity { get; set; }
+    public DateTime PurchaseDate { get; set; }
+    public decimal PurchasePrice { get; set; }
+}
+```
+
+### 17.1.2. Inventory Item Update
+
+#### `UpdateInventoryItemRequest`
+
+Used to update an existing inventory item.
+
+```csharp
+public class UpdateInventoryItemRequest
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public int Quantity { get; set; }
+    public DateTime PurchaseDate { get; set; }
+    public decimal PurchasePrice { get; set; }
+}
+```
+
+**`UpdateInventoryItemRequestValidator`**
+
+```csharp
+public class UpdateInventoryItemRequestValidator : AbstractValidator<UpdateInventoryItemRequest>
+{
+    public UpdateInventoryItemRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Description).MaximumLength(500);
+        RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.PurchaseDate).NotEmpty();
+        RuleFor(x => x.PurchasePrice).GreaterThanOrEqualTo(0);
+    }
+}
+```
+
+## 18. Payroll Management Contracts
+
+### 18.1. Salary Creation
+
+#### `CreateSalaryRequest`
+
+Used to create a new salary.
+
+```csharp
+public class CreateSalaryRequest
+{
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime EffectiveDate { get; set; }
+}
+```
+
+**`CreateSalaryRequestValidator`**
+
+```csharp
+public class CreateSalaryRequestValidator : AbstractValidator<CreateSalaryRequest>
+{
+    public CreateSalaryRequestValidator()
+    {
+        RuleFor(x => x.TeacherExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.EffectiveDate).NotEmpty();
+    }
+}
+```
+
+#### `SalaryResponse`
+
+Returned when fetching salary details.
+
+```csharp
+public class SalaryResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime EffectiveDate { get; set; }
+}
+```
+
+### 18.1.2. Salary Update
+
+#### `UpdateSalaryRequest`
+
+Used to update an existing salary.
+
+```csharp
+public class UpdateSalaryRequest
+{
+    public Guid Id { get; set; }
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime EffectiveDate { get; set; }
+}
+```
+
+**`UpdateSalaryRequestValidator`**
+
+```csharp
+public class UpdateSalaryRequestValidator : AbstractValidator<UpdateSalaryRequest>
+{
+    public UpdateSalaryRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.TeacherExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.EffectiveDate).NotEmpty();
+    }
+}
+```
+
+### 18.2. Bonus Creation
+
+#### `CreateBonusRequest`
+
+Used to create a new bonus.
+
+```csharp
+public class CreateBonusRequest
+{
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime BonusDate { get; set; }
+}
+```
+
+**`CreateBonusRequestValidator`**
+
+```csharp
+public class CreateBonusRequestValidator : AbstractValidator<CreateBonusRequest>
+{
+    public CreateBonusRequestValidator()
+    {
+        RuleFor(x => x.TeacherExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.BonusDate).NotEmpty();
+    }
+}
+```
+
+#### `BonusResponse`
+
+Returned when fetching bonus details.
+
+```csharp
+public class BonusResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime BonusDate { get; set; }
+}
+```
+
+### 18.2.2. Bonus Update
+
+#### `UpdateBonusRequest`
+
+Used to update an existing bonus.
+
+```csharp
+public class UpdateBonusRequest
+{
+    public Guid Id { get; set; }
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime BonusDate { get; set; }
+}
+```
+
+**`UpdateBonusRequestValidator`**
+
+```csharp
+public class UpdateBonusRequestValidator : AbstractValidator<UpdateBonusRequest>
+{
+    public UpdateBonusRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.TeacherExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.BonusDate).NotEmpty();
+    }
+}
+```
+
+### 18.3. Deduction Creation
+
+#### `CreateDeductionRequest`
+
+Used to create a new deduction.
+
+```csharp
+public class CreateDeductionRequest
+{
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime DeductionDate { get; set; }
+}
+```
+
+**`CreateDeductionRequestValidator`**
+
+```csharp
+public class CreateDeductionRequestValidator : AbstractValidator<CreateDeductionRequest>
+{
+    public CreateDeductionRequestValidator()
+    {
+        RuleFor(x => x.TeacherExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.DeductionDate).NotEmpty();
+    }
+}
+```
+
+#### `DeductionResponse`
+
+Returned when fetching deduction details.
+
+```csharp
+public class DeductionResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime DeductionDate { get; set; }
+}
+```
+
+### 18.3.2. Deduction Update
+
+#### `UpdateDeductionRequest`
+
+Used to update an existing deduction.
+
+```csharp
+public class UpdateDeductionRequest
+{
+    public Guid Id { get; set; }
+    public Guid TeacherExternalId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime DeductionDate { get; set; }
+}
+```
+
+**`UpdateDeductionRequestValidator`**
+
+```csharp
+public class UpdateDeductionRequestValidator : AbstractValidator<UpdateDeductionRequest>
+{
+    public UpdateDeductionRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.TeacherExternalId).NotEmpty();
+        RuleFor(x => x.Amount).GreaterThan(0);
+        RuleFor(x => x.DeductionDate).NotEmpty();
+    }
+}
+```
+
+## 19. Reporting Management Contracts
+
+### 19.1. Report Creation
+
+#### `CreateReportRequest`
+
+Used to create a new report.
+
+```csharp
+public class CreateReportRequest
+{
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string Query { get; set; }
+}
+```
+
+**`CreateReportRequestValidator`**
+
+```csharp
+public class CreateReportRequestValidator : AbstractValidator<CreateReportRequest>
+{
+    public CreateReportRequestValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Description).MaximumLength(500);
+        RuleFor(x => x.Query).NotEmpty();
+    }
+}
+```
+
+#### `ReportResponse`
+
+Returned when fetching report details.
+
+```csharp
+public class ReportResponse
+{
+    public Guid Id { get; set; } // Maps to ExternalId
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string Query { get; set; }
+}
+```
+
+### 19.1.2. Report Update
+
+#### `UpdateReportRequest`
+
+Used to update an existing report.
+
+```csharp
+public class UpdateReportRequest
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public string Query { get; set; }
+}
+```
+
+**`UpdateReportRequestValidator`**
+
+```csharp
+public class UpdateReportRequestValidator : AbstractValidator<UpdateReportRequest>
+{
+    public UpdateReportRequestValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Description).MaximumLength(500);
+        RuleFor(x => x.Query).NotEmpty();
+    }
+}
+```

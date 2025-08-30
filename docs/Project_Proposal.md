@@ -27,48 +27,53 @@ We propose the development of a holistic, integrated School Management System (S
 
 The SMS will feature a modular design, enabling phased development and future extensibility. A secure, centralized database will underpin the entire system, ensuring data integrity, consistency, and accessibility. The user interface will be designed with a focus on usability and accessibility, utilizing modern UI frameworks to provide a seamless experience across devices.
 
-## 4. Key Features & Scope (Initial Phase)
+## 4. Key Features & Scope
 
-The initial phase of development will focus on establishing a robust foundation with critical functionalities. Subsequent phases can build upon this core.
+The system will be developed with a comprehensive set of features to address all aspects of school management.
 
 ### 4.1. Core Modules
 
 *   **User Management & Authentication:**
-    *   **Secure User Registration & Login:** Robust authentication mechanisms (e.g., email/password, potentially integrating with institutional SSO in later phases).
-    *   **Role-Based Access Control (RBAC):** Granular permissions for Administrators, Teachers, Students, and Parents, ensuring users only access relevant information and functionalities.
-    *   **User Profile Management:** Functionality for users to view and update their personal information, contact details, and change passwords.
-    *   **Administrator Dashboard:** Overview of system health, user activity, and quick access to administrative functions.
+    *   Secure user registration, login, and role-based access control (Admin, Teacher, Student, Parent).
+    *   User profile management and administrator dashboard.
 *   **Student Information System (SIS):**
-    *   **Student Admissions & Enrollment:** Streamlined process for new student applications, registration, and enrollment into classes.
-    *   **Comprehensive Student Profiles:** Centralized storage for student demographics, contact information (parents/guardians), academic history, medical records, and emergency contacts.
-    *   **Class & Subject Management:** Tools for administrators to define academic years, terms, classes (e.g., Grade 10A), and subjects offered.
-    *   **Student Attendance Tracking:** Daily/period-wise attendance recording by teachers, with automated reporting and alerts for absenteeism.
+    *   Student admissions, enrollment, and comprehensive student profiles.
+    *   Class, subject, and attendance management.
 *   **Academic Management:**
-    *   **Course & Curriculum Management:** Define courses, assign teachers, manage course prerequisites, and structure academic programs.
-    *   **Gradebook & Report Card Generation:** Teachers can enter and manage grades for assignments, quizzes, and exams. Automated generation of customizable report cards.
-    *   **Assignment & Homework Management:** Teachers can post assignments, set deadlines, and students can view and potentially submit work.
+    *   Course and curriculum management.
+    *   Gradebook, report card generation, and assignment management.
 *   **Teacher Module:**
-    *   **Class & Student Roster Management:** Teachers can view their assigned classes and student lists.
-    *   **Grade Entry & Management:** Intuitive interface for entering and updating student grades.
-    *   **Attendance Recording:** Easy-to-use tools for marking daily or period-wise attendance.
-    *   **Communication Tools:** Direct messaging with students and parents within the system.
+    *   Class and student roster management.
+    *   Grade entry, attendance recording, and communication tools.
 *   **Parent/Student Portal:**
-    *   **Academic Progress Tracking:** Students and parents can view real-time grades, attendance records, and academic performance summaries.
-    *   **School Announcements & Calendar:** Access to school-wide announcements, event calendars, and important dates.
-    *   **Communication Hub:** Secure messaging platform for parents/students to communicate with teachers and administration.
+    *   Real-time access to academic progress, attendance, and school announcements.
+    *   Secure communication hub.
 *   **Communication & Notification System:**
-    *   **Internal Messaging:** Secure, in-app messaging system for all user roles.
-    *   **Automated Notifications:** Configurable email and (optional) SMS notifications for critical events (e.g., low attendance, new announcements, grade updates).
+    *   Internal messaging and automated notifications for key events.
 
-### 4.2. Out of Scope (for Initial Phase)
+### 4.2. Additional Modules
 
-*   Financial Management (e.g., fee collection, payroll)
-*   Library Management System
+*   **Billing System:**
+    *   Management of fee structures, invoice generation, and online payments.
+    *   Tracking of payments, calculation of late fees, and receipt generation.
+*   **Library System:**
+    *   Cataloging of books, member management, and check-in/check-out processes.
+    *   Due date tracking, fine management, and search functionality.
+*   **Inventory Management:**
+    *   Registration and tracking of all school assets, including furniture and equipment.
+    *   Stock management, maintenance scheduling, and supplier management.
+*   **Teacher Salary Management:**
+    *   Management of salary structures, payroll processing, and bonuses.
+    *   Integration with leave and attendance for accurate payroll calculation.
+*   **Reporting System:**
+    *   Centralized dashboard with graphical representations of key indicators.
+    *   Comprehensive reports on academic, financial, and administrative data.
+
+### 4.3. Out of Scope
+
 *   Transportation Management
 *   Hostel Management
 *   Alumni Management
-*   Advanced HR functionalities for staff
-*   Integration with external payment gateways (unless critical for initial phase)
 
 ## 5. Target Audience
 

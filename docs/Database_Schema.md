@@ -1,7 +1,7 @@
 # Database Schema: School Management System (SMS)
 
-**Document Version:** 2.0
-**Date:** 2025-08-07
+**Document Version:** 3.0
+**Date:** 2025-08-30
 **Author:** Gemini CLI Agent
 
 ---
@@ -13,6 +13,72 @@ This document defines the database schema for the School Management System (SMS)
 ## 2. Database Schema
 
 The School Management System database will be built on **PostgreSQL** and will consist of the following tables:
+
+### 2.1. `Students` Table
+
+- **Description:** Stores comprehensive information about each student.
+- **Table Name:** `Students`
+
+| Column Name      | Data Type      | Constraints                                | Description                                         |
+| :--------------- | :------------- | :----------------------------------------- | :-------------------------------------------------- |
+| `StudentID`      | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Unique identifier for the student.                  |
+| `FirstName`      | `VARCHAR(100)` | `NOT NULL`                                 | Student's first name.                               |
+| `LastName`       | `VARCHAR(100)` | `NOT NULL`                                 | Student's last name.                                |
+| `DateOfBirth`    | `DATE`         | `NOT NULL`                                 | Student's date of birth.                            |
+| `Gender`         | `VARCHAR(20)`  | `NULLABLE`                                 | Student's gender (e.g., 'Male', 'Female', 'Other'). |
+| `Address`        | `TEXT`         | `NULLABLE`                                 | Student's full address.                             |
+| `PhoneNumber`    | `VARCHAR(30)`  | `NULLABLE`                                 | Student's primary phone number.                     |
+| `Email`          | `VARCHAR(255)` | `UNIQUE`, `NOT NULL`                       | Student's unique email address.                     |
+| `EnrollmentDate` | `DATE`         | `NOT NULL`, `DEFAULT CURRENT_DATE`         | Date when the student was first enrolled.           |
+| `CreatedAt`      | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of when the record was created.           |
+| `UpdatedAt`      | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of the last update.                       |
+
+### 2.2. `Teachers` Table
+
+- **Description:** Stores information about each teacher.
+- **Table Name:** `Teachers`
+
+| Column Name   | Data Type      | Constraints                                | Description                               |
+| :------------ | :------------- | :----------------------------------------- | :---------------------------------------- |
+| `TeacherID`   | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Unique identifier for the teacher.        |
+| `FirstName`   | `VARCHAR(100)` | `NOT NULL`                                 | Teacher's first name.                     |
+| `LastName`    | `VARCHAR(100)` | `NOT NULL`                                 | Teacher's last name.                      |
+| `Email`       | `VARCHAR(255)` | `UNIQUE`, `NOT NULL`                       | Teacher's unique email address.           |
+| `PhoneNumber` | `VARCHAR(30)`  | `NULLABLE`                                 | Teacher's primary phone number.           |
+| `Department`  | `VARCHAR(100)` | `NULLABLE`                                 | Department the teacher belongs to.        |
+| `HireDate`    | `DATE`         | `NOT NULL`, `DEFAULT CURRENT_DATE`         | Date when the teacher was hired.          |
+| `CreatedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of when the record was created. |
+| `UpdatedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of the last update.             |
+
+### 2.3. `Courses` Table
+
+- **Description:** Stores details about the academic courses offered.
+- **Table Name:** `Courses`
+
+| Column Name   | Data Type      | Constraints                                                       | Description                                                           |
+| :------------ | :------------- | :---------------------------------------------------------------- | :-------------------------------------------------------------------- |
+| `CourseID`    | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                        | Unique identifier for the course.                                     |
+| `CourseName`  | `VARCHAR(255)` | `NOT NULL`                                                        | Name of the course.                                                   |
+| `CourseCode`  | `VARCHAR(20)`  | `UNIQUE`, `NOT NULL`                                              | Unique code for the course (e.g., 'MATH101').                         |
+| `Description` | `TEXT`         | `NULLABLE`                                                        | Detailed description of the course.                                   |
+| `Credits`     | `INTEGER`      | `NOT NULL`, `CHECK (Credits > 0)`                                 | Number of credits for the course.                                     |
+| `TeacherID`   | `UUID`         | `FOREIGN KEY (Teachers.TeacherID) ON DELETE SET NULL`, `NULLABLE` | Foreign key to the `Teachers` table, indicating the assigned teacher. |
+| `CreatedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                                       | Timestamp of when the record was created.                             |
+| `UpdatedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                                       | Timestamp of the last update.                                         |
+
+### 2.4. `Enrollments` Table
+
+- **Description:** A junction table that links students to the courses they are enrolled in.
+- **Table Name:** `Enrollments`
+
+| Column Name                        | Data Type    | Constraints                                                      | Description                                            |
+| :--------------------------------- | :----------- | :--------------------------------------------------------------- | :----------------------------------------------------- |
+| `EnrollmentID`                     | `UUID`       | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                       | Unique identifier for the enrollment record.           |
+| `StudentID`                        | `UUID`       | `FOREIGN KEY (Students.StudentID) ON DELETE CASCADE`, `NOT NULL` | Foreign key to the `Students` table.                   |
+| `CourseID`                         | `UUID`       | `FOREIGN KEY (Courses.CourseID) ON DELETE CASCADE`, `NOT NULL`   | Foreign key to the `Courses` table.                    |
+| `EnrollmentDate`                   | `DATE`       | `NOT NULL`, `DEFAULT CURRENT_DATE`                               | Date when the student enrolled in the course.          |
+| `Grade`                            | `VARCHAR(5)` | `NULLABLE`                                                       | Grade received by the student (e.g., 'A+', 'B-', 'C'). |
+| `UNIQUE` (`StudentID`, `CourseID`) | -            | -                                                                | Ensures a student can only enroll in a course once.    |
 
 ### 2.5. `Users` Table
 
@@ -276,260 +342,152 @@ The School Management System database will be built on **PostgreSQL** and will c
 | `Comment`      | `TEXT`         | `NULLABLE`                                           | Teacher comments/feedback.                 |
 | `RecordedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                          | When the grade was recorded.               |
 
-### 2.23. Enhanced Relationships and Constraints
+### 2.23. `Invoices` Table
 
-#### 2.23.1. Additional Constraints
+- **Description:** Stores invoice information for student billing.
+- **Table Name:** `Invoices`
 
-```sql
--- Ensure academic year end date is after start date
-ALTER TABLE AcademicYears ADD CONSTRAINT chk_academic_year_dates
-  CHECK (EndDate > StartDate);
+| Column Name  | Data Type     | Constraints                                    | Description              |
+| :----------- | :------------ | :--------------------------------------------- | :----------------------- |
+| `InvoiceID`  | `UUID`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`     | Unique identifier.       |
+| `StudentID`  | `UUID`        | `FOREIGN KEY (Students.StudentID)`, `NOT NULL` | Linked student.          |
+| `Amount`     | `DECIMAL`     | `NOT NULL`                                     | Total invoice amount.    |
+| `DueDate`    | `DATE`        | `NOT NULL`                                     | Payment due date.        |
+| `PaidDate`   | `DATE`        | `NULLABLE`                                     | Date the invoice was paid. |
+| `CreatedAt`  | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of creation.   |
+| `UpdatedAt`  | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of last update.|
 
--- Ensure term dates fall within academic year
-ALTER TABLE Terms ADD CONSTRAINT chk_term_within_academic_year
-  CHECK (StartDate >= (SELECT StartDate FROM AcademicYears WHERE YearID = AcademicYearID)
-    AND EndDate <= (SELECT EndDate FROM AcademicYears WHERE YearID = AcademicYearID));
+### 2.24. `InvoiceItems` Table
 
--- Ensure schedule end time is after start time
-ALTER TABLE Schedules ADD CONSTRAINT chk_schedule_times
-  CHECK (EndTime > StartTime);
+- **Description:** Stores individual line items for an invoice.
+- **Table Name:** `InvoiceItems`
 
--- Ensure either enrollment or assignment is specified for grades, not both
-ALTER TABLE Grades ADD CONSTRAINT chk_grade_context
-  CHECK ((EnrollmentID IS NOT NULL AND AssignmentID IS NULL)
-    OR (EnrollmentID IS NULL AND AssignmentID IS NOT NULL));
+| Column Name    | Data Type     | Constraints                                    | Description              |
+| :------------- | :------------ | :--------------------------------------------- | :----------------------- |
+| `InvoiceItemID`| `UUID`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`     | Unique identifier.       |
+| `InvoiceID`    | `UUID`        | `FOREIGN KEY (Invoices.InvoiceID)`, `NOT NULL` | Linked invoice.          |
+| `Description`  | `VARCHAR(255)`| `NOT NULL`                                     | Line item description.   |
+| `Amount`       | `DECIMAL`     | `NOT NULL`                                     | Line item amount.        |
+| `CreatedAt`    | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of creation.   |
+| `UpdatedAt`    | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of last update.|
 
--- Ensure attendance date is not in the future
-ALTER TABLE Attendance ADD CONSTRAINT chk_attendance_date
-  CHECK (Date <= CURRENT_DATE);
-```
+### 2.25. `Payments` Table
 
-#### 2.23.2. Composite Unique Constraints
+- **Description:** Stores payment information for invoices.
+- **Table Name:** `Payments`
 
-```sql
--- Prevent duplicate schedules (same class, subject, teacher, time)
-ALTER TABLE Schedules ADD CONSTRAINT uk_schedule_unique
-  UNIQUE (ClassID, SubjectID, DayOfWeek, StartTime, TermID);
+| Column Name   | Data Type     | Constraints                                    | Description              |
+| :------------ | :------------ | :--------------------------------------------- | :----------------------- |
+| `PaymentID`   | `UUID`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`     | Unique identifier.       |
+| `InvoiceID`   | `UUID`        | `FOREIGN KEY (Invoices.InvoiceID)`, `NOT NULL` | Linked invoice.          |
+| `Amount`      | `DECIMAL`     | `NOT NULL`                                     | Payment amount.          |
+| `PaymentDate` | `DATE`        | `NOT NULL`                                     | Date of payment.         |
+| `CreatedAt`   | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of creation.   |
+| `UpdatedAt`   | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of last update.|
 
--- Prevent duplicate daily attendance records
-ALTER TABLE Attendance ADD CONSTRAINT uk_attendance_student_date
-  UNIQUE (StudentID, Date);
+### 2.26. `Books` Table
 
--- Prevent duplicate assignment submissions
-ALTER TABLE AssignmentSubmissions ADD CONSTRAINT uk_assignment_submission
-  UNIQUE (AssignmentID, StudentID);
-```
+- **Description:** Stores information about books in the library.
+- **Table Name:** `Books`
 
-### 2.24. Indexing Strategy (Implementation Ready)
+| Column Name     | Data Type      | Constraints                                | Description              |
+| :-------------- | :------------- | :----------------------------------------- | :----------------------- |
+| `BookID`        | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Unique identifier.       |
+| `Title`         | `VARCHAR(255)` | `NOT NULL`                                 | Book title.              |
+| `Author`        | `VARCHAR(255)` | `NOT NULL`                                 | Book author.             |
+| `ISBN`          | `VARCHAR(20)`  | `UNIQUE`, `NOT NULL`                       | ISBN number.             |
+| `PublishedDate` | `DATE`         | `NULLABLE`                                 | Publication date.        |
+| `Quantity`      | `INTEGER`      | `NOT NULL`                                 | Total quantity of books. |
+| `CreatedAt`     | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of creation.   |
+| `UpdatedAt`     | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of last update.|
 
-```sql
--- Performance indexes for common queries
-CREATE INDEX idx_students_email ON Students(Email);
-CREATE INDEX idx_students_enrollment_date ON Students(EnrollmentDate);
-CREATE INDEX idx_students_active ON Students(IsActive) WHERE IsActive = TRUE;
+### 2.27. `BookLoans` Table
 
-CREATE INDEX idx_teachers_email ON Teachers(Email);
-CREATE INDEX idx_teachers_department ON Teachers(Department);
+- **Description:** Stores information about books loaned to students.
+- **Table Name:** `BookLoans`
 
-CREATE INDEX idx_courses_code ON Courses(CourseCode);
-CREATE INDEX idx_courses_teacher ON Courses(TeacherID);
+| Column Name  | Data Type     | Constraints                                    | Description              |
+| :----------- | :------------ | :--------------------------------------------- | :----------------------- |
+| `BookLoanID` | `UUID`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`     | Unique identifier.       |
+| `BookID`     | `UUID`        | `FOREIGN KEY (Books.BookID)`, `NOT NULL`       | Linked book.             |
+| `StudentID`  | `UUID`        | `FOREIGN KEY (Students.StudentID)`, `NOT NULL` | Linked student.          |
+| `LoanDate`   | `DATE`        | `NOT NULL`                                     | Date the book was loaned.|
+| `ReturnDate` | `DATE`        | `NULLABLE`                                     | Date the book was returned.|
+| `DueDate`    | `DATE`        | `NOT NULL`                                     | Due date for return.     |
+| `CreatedAt`  | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of creation.   |
+| `UpdatedAt`  | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of last update.|
 
-CREATE INDEX idx_enrollments_student ON Enrollments(StudentID);
-CREATE INDEX idx_enrollments_course ON Enrollments(CourseID);
-CREATE INDEX idx_enrollments_composite ON Enrollments(StudentID, CourseID);
+### 2.28. `InventoryItems` Table
 
-CREATE INDEX idx_attendance_student_date ON Attendance(StudentID, Date);
-CREATE INDEX idx_attendance_date ON Attendance(Date);
-CREATE INDEX idx_attendance_status ON Attendance(Status);
+- **Description:** Stores information about school inventory items.
+- **Table Name:** `InventoryItems`
 
-CREATE INDEX idx_grades_student ON Grades(StudentID);
-CREATE INDEX idx_grades_course ON Grades(CourseID);
-CREATE INDEX idx_grades_assignment ON Grades(AssignmentID);
-CREATE INDEX idx_grades_recorded_at ON Grades(RecordedAt);
+| Column Name     | Data Type      | Constraints                                | Description              |
+| :-------------- | :------------- | :----------------------------------------- | :----------------------- |
+| `InventoryItemID` | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Unique identifier.       |
+| `Name`          | `VARCHAR(255)` | `NOT NULL`                                 | Item name.               |
+| `Description`   | `TEXT`         | `NULLABLE`                                 | Item description.        |
+| `Quantity`      | `INTEGER`      | `NOT NULL`                                 | Item quantity.           |
+| `PurchaseDate`  | `DATE`         | `NULLABLE`                                 | Date of purchase.        |
+| `PurchasePrice` | `DECIMAL`      | `NULLABLE`                                 | Price of purchase.       |
+| `CreatedAt`     | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of creation.   |
+| `UpdatedAt`     | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of last update.|
 
-CREATE INDEX idx_schedules_class ON Schedules(ClassID);
-CREATE INDEX idx_schedules_teacher ON Schedules(TeacherID);
-CREATE INDEX idx_schedules_time ON Schedules(DayOfWeek, StartTime);
+### 2.29. `Salaries` Table
 
-CREATE INDEX idx_messages_recipient ON Messages(RecipientID, IsRead);
-CREATE INDEX idx_messages_sender ON Messages(SenderID);
+- **Description:** Stores salary information for teachers.
+- **Table Name:** `Salaries`
 
-CREATE INDEX idx_notifications_user ON Notifications(UserID, IsRead);
-CREATE INDEX idx_notifications_type ON Notifications(Type);
+| Column Name     | Data Type     | Constraints                                    | Description              |
+| :-------------- | :------------ | :--------------------------------------------- | :----------------------- |
+| `SalaryID`      | `UUID`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`     | Unique identifier.       |
+| `TeacherID`     | `UUID`        | `FOREIGN KEY (Teachers.TeacherID)`, `NOT NULL` | Linked teacher.          |
+| `Amount`        | `DECIMAL`     | `NOT NULL`                                     | Salary amount.           |
+| `EffectiveDate` | `DATE`        | `NOT NULL`                                     | Date the salary is effective from.|
+| `CreatedAt`     | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of creation.   |
+| `UpdatedAt`     | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of last update.|
 
-CREATE INDEX idx_audit_log_entity ON AuditLog(Entity, EntityID);
-CREATE INDEX idx_audit_log_user_time ON AuditLog(UserID, Timestamp);
+### 2.30. `Bonuses` Table
 
--- Full-text search indexes for names and content
-CREATE INDEX idx_students_name_search ON Students
-  USING GIN (to_tsvector('english', FirstName || ' ' || LastName));
+- **Description:** Stores bonus information for teachers.
+- **Table Name:** `Bonuses`
 
-CREATE INDEX idx_teachers_name_search ON Teachers
-  USING GIN (to_tsvector('english', FirstName || ' ' || LastName));
+| Column Name | Data Type     | Constraints                                    | Description              |
+| :---------- | :------------ | :--------------------------------------------- | :----------------------- |
+| `BonusID`   | `UUID`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`     | Unique identifier.       |
+| `TeacherID` | `UUID`        | `FOREIGN KEY (Teachers.TeacherID)`, `NOT NULL` | Linked teacher.          |
+| `Amount`    | `DECIMAL`     | `NOT NULL`                                     | Bonus amount.            |
+| `BonusDate` | `DATE`        | `NOT NULL`                                     | Date the bonus was given.|
+| `CreatedAt` | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of creation.   |
+| `UpdatedAt` | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of last update.|
 
-CREATE INDEX idx_courses_name_search ON Courses
-  USING GIN (to_tsvector('english', CourseName || ' ' || Description));
-```
+### 2.31. `Deductions` Table
 
-### 2.25. Soft Delete Implementation
+- **Description:** Stores deduction information for teachers.
+- **Table Name:** `Deductions`
 
-All core entities include soft delete support:
+| Column Name     | Data Type     | Constraints                                    | Description              |
+| :-------------- | :------------ | :--------------------------------------------- | :----------------------- |
+| `DeductionID`   | `UUID`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`     | Unique identifier.       |
+| `TeacherID`     | `UUID`        | `FOREIGN KEY (Teachers.TeacherID)`, `NOT NULL` | Linked teacher.          |
+| `Amount`        | `DECIMAL`     | `NOT NULL`                                     | Deduction amount.        |
+| `DeductionDate` | `DATE`        | `NOT NULL`                                     | Date of deduction.       |
+| `CreatedAt`     | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of creation.   |
+| `UpdatedAt`     | `TIMESTAMPTZ` | `NOT NULL`, `DEFAULT NOW()`                    | Timestamp of last update.|
 
-```sql
--- Add soft delete columns to main entities
-ALTER TABLE Students ADD COLUMN IsDeleted BOOLEAN DEFAULT FALSE;
-ALTER TABLE Teachers ADD COLUMN IsDeleted BOOLEAN DEFAULT FALSE;
-ALTER TABLE Courses ADD COLUMN IsDeleted BOOLEAN DEFAULT FALSE;
-ALTER TABLE Users ADD COLUMN IsDeleted BOOLEAN DEFAULT FALSE;
-ALTER TABLE Parents ADD COLUMN IsDeleted BOOLEAN DEFAULT FALSE;
+### 2.32. `Reports` Table
 
--- Create filtered indexes for active records only
-CREATE INDEX idx_students_active ON Students(StudentID) WHERE IsDeleted = FALSE;
-CREATE INDEX idx_teachers_active ON Teachers(TeacherID) WHERE IsDeleted = FALSE;
-CREATE INDEX idx_courses_active ON Courses(CourseID) WHERE IsDeleted = FALSE;
-CREATE INDEX idx_users_active ON Users(UserID) WHERE IsDeleted = FALSE;
-```
+- **Description:** Stores information about generated reports.
+- **Table Name:** `Reports`
 
-### 2.26. Database Functions and Triggers
-
-#### 2.26.1. Automatic Timestamp Updates
-
-```sql
--- Function to update timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.UpdatedAt = NOW();
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- Apply to all tables with UpdatedAt column
-CREATE TRIGGER update_students_updated_at BEFORE UPDATE ON Students
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_teachers_updated_at BEFORE UPDATE ON Teachers
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_courses_updated_at BEFORE UPDATE ON Courses
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON Users
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-```
-
-#### 2.26.2. Audit Logging Trigger
-
-```sql
--- Function to create audit log entries
-CREATE OR REPLACE FUNCTION audit_trigger_function()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'DELETE' THEN
-        INSERT INTO AuditLog (UserID, Action, Entity, EntityID, Details)
-        VALUES (
-            current_setting('app.current_user_id')::UUID,
-            'DELETE',
-            TG_TABLE_NAME,
-            OLD.StudentID, -- Adjust based on table
-            row_to_json(OLD)::TEXT
-        );
-        RETURN OLD;
-    ELSIF TG_OP = 'UPDATE' THEN
-        INSERT INTO AuditLog (UserID, Action, Entity, EntityID, Details)
-        VALUES (
-            current_setting('app.current_user_id')::UUID,
-            'UPDATE',
-            TG_TABLE_NAME,
-            NEW.StudentID, -- Adjust based on table
-            json_build_object('before', row_to_json(OLD), 'after', row_to_json(NEW))::TEXT
-        );
-        RETURN NEW;
-    ELSIF TG_OP = 'INSERT' THEN
-        INSERT INTO AuditLog (UserID, Action, Entity, EntityID, Details)
-        VALUES (
-            current_setting('app.current_user_id')::UUID,
-            'CREATE',
-            TG_TABLE_NAME,
-            NEW.StudentID, -- Adjust based on table
-            row_to_json(NEW)::TEXT
-        );
-        RETURN NEW;
-    END IF;
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-```
-
-This enhanced database schema provides a complete, production-ready foundation for the School Management System with proper indexing, constraints, and audit capabilities.
-
-## 3. Relationships (Entity-Relationship Diagram - ERD)
-
-### 2.1. `Students` Table
-
-- **Description:** Stores comprehensive information about each student.
-- **Table Name:** `Students`
-
-| Column Name      | Data Type      | Constraints                                | Description                                         |
-| :--------------- | :------------- | :----------------------------------------- | :-------------------------------------------------- |
-| `StudentID`      | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Unique identifier for the student.                  |
-| `FirstName`      | `VARCHAR(100)` | `NOT NULL`                                 | Student's first name.                               |
-| `LastName`       | `VARCHAR(100)` | `NOT NULL`                                 | Student's last name.                                |
-| `DateOfBirth`    | `DATE`         | `NOT NULL`                                 | Student's date of birth.                            |
-| `Gender`         | `VARCHAR(20)`  | `NULLABLE`                                 | Student's gender (e.g., 'Male', 'Female', 'Other'). |
-| `Address`        | `TEXT`         | `NULLABLE`                                 | Student's full address.                             |
-| `PhoneNumber`    | `VARCHAR(30)`  | `NULLABLE`                                 | Student's primary phone number.                     |
-| `Email`          | `VARCHAR(255)` | `UNIQUE`, `NOT NULL`                       | Student's unique email address.                     |
-| `EnrollmentDate` | `DATE`         | `NOT NULL`, `DEFAULT CURRENT_DATE`         | Date when the student was first enrolled.           |
-| `CreatedAt`      | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of when the record was created.           |
-| `UpdatedAt`      | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of the last update.                       |
-
-### 2.2. `Teachers` Table
-
-- **Description:** Stores information about each teacher.
-- **Table Name:** `Teachers`
-
-| Column Name   | Data Type      | Constraints                                | Description                               |
-| :------------ | :------------- | :----------------------------------------- | :---------------------------------------- |
-| `TeacherID`   | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Unique identifier for the teacher.        |
-| `FirstName`   | `VARCHAR(100)` | `NOT NULL`                                 | Teacher's first name.                     |
-| `LastName`    | `VARCHAR(100)` | `NOT NULL`                                 | Teacher's last name.                      |
-| `Email`       | `VARCHAR(255)` | `UNIQUE`, `NOT NULL`                       | Teacher's unique email address.           |
-| `PhoneNumber` | `VARCHAR(30)`  | `NULLABLE`                                 | Teacher's primary phone number.           |
-| `Department`  | `VARCHAR(100)` | `NULLABLE`                                 | Department the teacher belongs to.        |
-| `HireDate`    | `DATE`         | `NOT NULL`, `DEFAULT CURRENT_DATE`         | Date when the teacher was hired.          |
-| `CreatedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of when the record was created. |
-| `UpdatedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of the last update.             |
-
-### 2.3. `Courses` Table
-
-- **Description:** Stores details about the academic courses offered.
-- **Table Name:** `Courses`
-
-| Column Name   | Data Type      | Constraints                                                       | Description                                                           |
-| :------------ | :------------- | :---------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| `CourseID`    | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                        | Unique identifier for the course.                                     |
-| `CourseName`  | `VARCHAR(255)` | `NOT NULL`                                                        | Name of the course.                                                   |
-| `CourseCode`  | `VARCHAR(20)`  | `UNIQUE`, `NOT NULL`                                              | Unique code for the course (e.g., 'MATH101').                         |
-| `Description` | `TEXT`         | `NULLABLE`                                                        | Detailed description of the course.                                   |
-| `Credits`     | `INTEGER`      | `NOT NULL`, `CHECK (Credits > 0)`                                 | Number of credits for the course.                                     |
-| `TeacherID`   | `UUID`         | `FOREIGN KEY (Teachers.TeacherID) ON DELETE SET NULL`, `NULLABLE` | Foreign key to the `Teachers` table, indicating the assigned teacher. |
-| `CreatedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                                       | Timestamp of when the record was created.                             |
-| `UpdatedAt`   | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                                       | Timestamp of the last update.                                         |
-
-### 2.4. `Enrollments` Table
-
-- **Description:** A junction table that links students to the courses they are enrolled in.
-- **Table Name:** `Enrollments`
-
-| Column Name                        | Data Type    | Constraints                                                      | Description                                            |
-| :--------------------------------- | :----------- | :--------------------------------------------------------------- | :----------------------------------------------------- |
-| `EnrollmentID`                     | `UUID`       | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`                       | Unique identifier for the enrollment record.           |
-| `StudentID`                        | `UUID`       | `FOREIGN KEY (Students.StudentID) ON DELETE CASCADE`, `NOT NULL` | Foreign key to the `Students` table.                   |
-| `CourseID`                         | `UUID`       | `FOREIGN KEY (Courses.CourseID) ON DELETE CASCADE`, `NOT NULL`   | Foreign key to the `Courses` table.                    |
-| `EnrollmentDate`                   | `DATE`       | `NOT NULL`, `DEFAULT CURRENT_DATE`                               | Date when the student enrolled in the course.          |
-| `Grade`                            | `VARCHAR(5)` | `NULLABLE`                                                       | Grade received by the student (e.g., 'A+', 'B-', 'C'). |
-| `UNIQUE` (`StudentID`, `CourseID`) | -            | -                                                                | Ensures a student can only enroll in a course once.    |
+| Column Name | Data Type      | Constraints                                | Description              |
+| :---------- | :------------- | :----------------------------------------- | :----------------------- |
+| `ReportID`  | `UUID`         | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Unique identifier.       |
+| `Name`      | `VARCHAR(255)` | `NOT NULL`                                 | Report name.             |
+| `Description`| `TEXT`         | `NULLABLE`                                 | Report description.      |
+| `Query`     | `TEXT`         | `NOT NULL`                                 | SQL query for the report.|
+| `CreatedAt` | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of creation.   |
+| `UpdatedAt` | `TIMESTAMPTZ`  | `NOT NULL`, `DEFAULT NOW()`                | Timestamp of last update.|
 
 ## 3. Relationships (Entity-Relationship Diagram - ERD)
 
@@ -538,6 +496,14 @@ erDiagram
     STUDENTS ||--o{ ENROLLMENTS : "has"
     COURSES ||--o{ ENROLLMENTS : "has"
     TEACHERS ||--o{ COURSES : "teaches"
+    STUDENTS ||--o{ INVOICES : "has"
+    INVOICES ||--|{ INVOICE_ITEMS : "contains"
+    INVOICES ||--o{ PAYMENTS : "has"
+    STUDENTS ||--o{ BOOK_LOANS : "borrows"
+    BOOKS ||--o{ BOOK_LOANS : "is borrowed"
+    TEACHERS ||--o{ SALARIES : "has"
+    TEACHERS ||--o{ BONUSES : "receives"
+    TEACHERS ||--o{ DEDUCTIONS : "has"
 
     STUDENTS {
         UUID StudentID PK
@@ -571,6 +537,83 @@ erDiagram
         DATE EnrollmentDate
         VARCHAR(5) Grade
     }
+
+    INVOICES {
+        UUID InvoiceID PK
+        UUID StudentID FK
+        DECIMAL Amount
+        DATE DueDate
+        DATE PaidDate
+    }
+
+    INVOICE_ITEMS {
+        UUID InvoiceItemID PK
+        UUID InvoiceID FK
+        VARCHAR(255) Description
+        DECIMAL Amount
+    }
+
+    PAYMENTS {
+        UUID PaymentID PK
+        UUID InvoiceID FK
+        DECIMAL Amount
+        DATE PaymentDate
+    }
+
+    BOOKS {
+        UUID BookID PK
+        VARCHAR(255) Title
+        VARCHAR(255) Author
+        VARCHAR(20) ISBN
+        DATE PublishedDate
+        INTEGER Quantity
+    }
+
+    BOOK_LOANS {
+        UUID BookLoanID PK
+        UUID BookID FK
+        UUID StudentID FK
+        DATE LoanDate
+        DATE ReturnDate
+        DATE DueDate
+    }
+
+    INVENTORY_ITEMS {
+        UUID InventoryItemID PK
+        VARCHAR(255) Name
+        TEXT Description
+        INTEGER Quantity
+        DATE PurchaseDate
+        DECIMAL PurchasePrice
+    }
+
+    SALARIES {
+        UUID SalaryID PK
+        UUID TeacherID FK
+        DECIMAL Amount
+        DATE EffectiveDate
+    }
+
+    BONUSES {
+        UUID BonusID PK
+        UUID TeacherID FK
+        DECIMAL Amount
+        DATE BonusDate
+    }
+
+    DEDUCTIONS {
+        UUID DeductionID PK
+        UUID TeacherID FK
+        DECIMAL Amount
+        DATE DeductionDate
+    }
+
+    REPORTS {
+        UUID ReportID PK
+        VARCHAR(255) Name
+        TEXT Description
+        TEXT Query
+    }
 ```
 
 ## 4. Indexing Strategy
@@ -578,12 +621,8 @@ erDiagram
 To ensure optimal query performance, the following indexes will be created:
 
 - **Primary Keys:** PostgreSQL automatically creates indexes on all `PRIMARY KEY` columns.
-- **Foreign Keys:** Indexes will be created on all foreign key columns (`Enrollments.StudentID`, `Enrollments.CourseID`, `Courses.TeacherID`) to speed up join operations.
-- **Frequently Queried Columns:** Additional indexes will be created on columns frequently used in `WHERE` clauses and for sorting:
-  - `Students(Email)`
-  - `Teachers(Email)`
-  - `Courses(CourseCode)`
-  - `Courses(CourseName)`
+- **Foreign Keys:** Indexes will be created on all foreign key columns to speed up join operations.
+- **Frequently Queried Columns:** Additional indexes will be created on columns frequently used in `WHERE` clauses and for sorting.
 
 ## 5. Future Considerations
 

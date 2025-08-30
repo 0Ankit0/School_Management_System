@@ -294,6 +294,123 @@ All entities will include the following metadata properties for auditing and tra
   - `Timestamp`
   - `Details`
 
+- **Invoice:** Represents a bill for a student.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `StudentId` (FK to Student)
+  - `Amount`
+  - `DueDate`
+  - `PaidDate` (Nullable)
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **InvoiceItem:** Represents a single item on an invoice.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `InvoiceId` (FK to Invoice)
+  - `Description`
+  - `Amount`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **Payment:** Represents a payment made by a student.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `InvoiceId` (FK to Invoice)
+  - `Amount`
+  - `PaymentDate`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **Book:** Represents a book in the library.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `Title`
+  - `Author`
+  - `ISBN`
+  - `PublishedDate`
+  - `Quantity`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **BookLoan:** Represents a book loaned to a student.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `BookId` (FK to Book)
+  - `StudentId` (FK to Student)
+  - `LoanDate`
+  - `ReturnDate` (Nullable)
+  - `DueDate`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **InventoryItem:** Represents an item in the school's inventory.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `Name`
+  - `Description`
+  - `Quantity`
+  - `PurchaseDate`
+  - `PurchasePrice`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **Salary:** Represents a teacher's salary.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `TeacherId` (FK to Teacher)
+  - `Amount`
+  - `EffectiveDate`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **Bonus:** Represents a bonus given to a teacher.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `TeacherId` (FK to Teacher)
+  - `Amount`
+  - `BonusDate`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **Deduction:** Represents a deduction from a teacher's salary.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `TeacherId` (FK to Teacher)
+  - `Amount`
+  - `DeductionDate`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
+- **Report:** Represents a generated report.
+  - `Id` (PK)
+  - `ExternalId` (Guid)
+  - `Name`
+  - `Description`
+  - `Query`
+  - `CreatedAt`
+  - `UpdatedAt`
+  - `CreatedBy`
+  - `UpdatedBy`
+
 _(A detailed Entity-Relationship Diagram (ERD) will be provided in the Database Schema Document.)_
 
 ## 4. Technology Stack
@@ -345,6 +462,11 @@ graph TD
         B --> D(Notification & Messaging Service)
         B --> E(File Management Service)
         B --> F(School Core Service)
+        B --> G(Billing Service)
+        B --> H(Library Service)
+        B --> I(Inventory Service)
+        B --> J(Payroll Service)
+        B --> K(Reporting Service)
     end
 
     subgraph Data Tier
@@ -352,6 +474,11 @@ graph TD
         D --> D_DB[Notification & Messaging DB]
         E --> E_DB[File Management DB]
         F --> F_DB[School Core DB]
+        G --> G_DB[Billing DB]
+        H --> H_DB[Library DB]
+        I --> I_DB[Inventory DB]
+        J --> J_DB[Payroll DB]
+        K --> K_DB[Reporting DB]
     end
 
     style A fill:#f9f,stroke:#333,stroke-width:2px
@@ -360,10 +487,20 @@ graph TD
     style D fill:#cfc,stroke:#333,stroke-width:2px
     style E fill:#ffc,stroke:#333,stroke-width:2px
     style F fill:#fcf,stroke:#333,stroke-width:2px
+    style G fill:#cff,stroke:#333,stroke-width:2px
+    style H fill:#f9f,stroke:#333,stroke-width:2px
+    style I fill:#bbf,stroke:#333,stroke-width:2px
+    style J fill:#ccf,stroke:#333,stroke-width:2px
+    style K fill:#cfc,stroke:#333,stroke-width:2px
     style C_DB fill:#fcf,stroke:#333,stroke-width:2px
     style D_DB fill:#cff,stroke:#333,stroke-width:2px
     style E_DB fill:#fcc,stroke:#333,stroke-width:2px
     style F_DB fill:#f9f,stroke:#333,stroke-width:2px
+    style G_DB fill:#bbf,stroke:#333,stroke-width:2px
+    style H_DB fill:#ccf,stroke:#333,stroke-width:2px
+    style I_DB fill:#cfc,stroke:#333,stroke-width:2px
+    style J_DB fill:#ffc,stroke:#333,stroke-width:2px
+    style K_DB fill:#fcf,stroke:#333,stroke-width:2px
 ```
 
 ### 9.2. Microservice Breakdown and Responsibilities
@@ -387,22 +524,42 @@ Each microservice will be an independent ASP.NET Core Web API project, deployed 
     -   **Entities:** `FileStorage`.
     -   **Technology Stack:** ASP.NET Core, Entity Framework Core, PostgreSQL, Cloud Storage SDKs (e.g., `Azure.Storage.Blobs`, `AWSSDK.S3`).
     -   **Key NuGet Packages:** `Npgsql.EntityFrameworkCore.PostgreSQL`, `FluentValidation.AspNetCore`, relevant cloud storage SDK.
-    -   **Key Features:**
-        -   **Secure Upload/Download:** Handles secure transfer of files, including validation of file types and sizes.
-        -   **Metadata Management:** Stores and retrieves rich metadata associated with each file (e.g., original filename, content type, size, upload date, uploader, custom tags).
-        -   **Versioning:** Supports multiple versions of a file, allowing retrieval of previous states and tracking changes over time.
-        -   **Access Control:** Implements granular permissions to control who can upload, download, view, or manage specific files or folders.
-        -   **Storage Abstraction:** Provides an abstract interface for different storage providers (e.g., local filesystem, Azure Blob Storage, AWS S3), allowing easy switching without impacting the service logic.
-        -   **File Categorization/Tagging:** Enables categorization and tagging of files for easier organization and search.
-        -   **Search Capabilities:** Allows searching for files based on metadata, tags, or content (if applicable).
-        -   **Deletion Policies:** Supports soft deletion (marking as deleted but retaining data) and hard deletion (permanent removal) with configurable retention policies.
-        -   **Integration Points:** Designed with clear APIs for easy integration into other services or applications.
 
 -   **School Core Service (`SMS.Microservices.SchoolCore`):**
     -   **Responsibilities:** Manages all core academic and administrative data: student information, teacher details, course definitions, enrollments, attendance, assignments, and audit logs.
     -   **Entities:** `Student`, `ParentGuardian`, `Teacher`, `Course`, `Enrollment`, `Attendance`, `Assignment`, `AssignmentSubmission`, `AuditLog`.
     -   **Technology Stack:** ASP.NET Core, Entity Framework Core, PostgreSQL, Dapper (for complex queries).
     -   **Key NuGet Packages:** `Npgsql.EntityFrameworkCore.PostgreSQL`, `FluentValidation.AspNetCore`, `Dapper`.
+
+-   **Billing Service (`SMS.Microservices.Billing`):**
+    -   **Responsibilities:** Manages student billing, invoicing, and payments.
+    -   **Entities:** `Invoice`, `InvoiceItem`, `Payment`.
+    -   **Technology Stack:** ASP.NET Core, Entity Framework Core, PostgreSQL.
+    -   **Key NuGet Packages:** `Npgsql.EntityFrameworkCore.PostgreSQL`, `FluentValidation.AspNetCore`.
+
+-   **Library Service (`SMS.Microservices.Library`):**
+    -   **Responsibilities:** Manages the school library, including books and loans.
+    -   **Entities:** `Book`, `BookLoan`.
+    -   **Technology Stack:** ASP.NET Core, Entity Framework Core, PostgreSQL.
+    -   **Key NuGet Packages:** `Npgsql.EntityFrameworkCore.PostgreSQL`, `FluentValidation.AspNetCore`.
+
+-   **Inventory Service (`SMS.Microservices.Inventory`):**
+    -   **Responsibilities:** Manages the school's inventory of assets.
+    -   **Entities:** `InventoryItem`.
+    -   **Technology Stack:** ASP.NET Core, Entity Framework Core, PostgreSQL.
+    -   **Key NuGet Packages:** `Npgsql.EntityFrameworkCore.PostgreSQL`, `FluentValidation.AspNetCore`.
+
+-   **Payroll Service (`SMS.Microservices.Payroll`):**
+    -   **Responsibilities:** Manages teacher salaries, bonuses, and deductions.
+    -   **Entities:** `Salary`, `Bonus`, `Deduction`.
+    -   **Technology Stack:** ASP.NET Core, Entity Framework Core, PostgreSQL.
+    -   **Key NuGet Packages:** `Npgsql.EntityFrameworkCore.PostgreSQL`, `FluentValidation.AspNetCore`.
+
+-   **Reporting Service (`SMS.Microservices.Reporting`):**
+    -   **Responsibilities:** Generates and manages reports.
+    -   **Entities:** `Report`.
+    -   **Technology Stack:** ASP.NET Core, Dapper, PostgreSQL.
+    -   **Key NuGet Packages:** `Dapper`, `Npgsql`.
 
 ### 9.3. Communication Strategy
 

@@ -117,3 +117,94 @@ This phase involves gradually extracting functionalities from the `SMS.ApiServic
 ---
 
 This detailed workflow provides a practical guide for evolving the SMS into a robust and scalable microservices architecture.
+
+## 6. Billing and Payment Workflows
+
+### 6.1. Generating Invoices (Administrator)
+
+1.  **Administrator Action:** Navigates to the "Billing" section and initiates the invoice generation process for a specific class or student.
+2.  **`SMS.UI`:** Sends a request to the API Gateway to generate invoices.
+3.  **API Gateway:** Routes the request to the **Billing Service**.
+4.  **Billing Service:** 
+    -   Retrieves student and fee information (potentially by calling the **School Core Service**).
+    -   Creates `Invoice` and `InvoiceItem` records in its database.
+    -   Returns a success response.
+5.  **`SMS.UI`:** Displays a confirmation message.
+
+### 6.2. Viewing and Paying Invoices (Parent/Student)
+
+1.  **Parent/Student Action:** Logs in and navigates to the "My Billing" or "My Fees" section.
+2.  **`SMS.UI`:** Requests the user's invoices from the API Gateway.
+3.  **API Gateway:** Routes the request to the **Billing Service**.
+4.  **Billing Service:** Fetches the invoices for the user and returns them.
+5.  **`SMS.UI`:** Displays the list of invoices. The user selects an invoice to pay.
+6.  **Parent/Student Action:** Clicks a "Pay Now" button, which redirects to a payment gateway (integration is out of scope for the initial phase, so this is a simulation).
+7.  **`SMS.UI`:** After a simulated successful payment, sends a `CreatePaymentRequest` to the API Gateway.
+8.  **API Gateway:** Routes the request to the **Billing Service**.
+9.  **Billing Service:** Records the payment, updates the invoice status, and returns a `PaymentResponse`.
+10. **`SMS.UI`:** Displays a payment confirmation.
+
+## 7. Library Management Workflows
+
+### 7.1. Adding a New Book (Librarian/Administrator)
+
+1.  **Librarian Action:** Navigates to the "Library Management" section and selects "Add New Book".
+2.  **`SMS.UI`:** Displays a form to enter book details.
+3.  **Librarian Action:** Fills in the book details and submits the form.
+4.  **`SMS.UI`:** Sends a `CreateBookRequest` to the API Gateway.
+5.  **API Gateway:** Routes the request to the **Library Service**.
+6.  **Library Service:** Creates a new `Book` record and returns a `BookResponse`.
+7.  **`SMS.UI`:** Shows a success message.
+
+### 7.2. Loaning a Book (Librarian)
+
+1.  **Librarian Action:** Scans or enters the book's identifier and the student's identifier.
+2.  **`SMS.UI`:** Sends a `CreateBookLoanRequest` to the API Gateway.
+3.  **API Gateway:** Routes the request to the **Library Service**.
+4.  **Library Service:** 
+    -   Validates that the book is available.
+    -   Creates a `BookLoan` record.
+    -   Decrements the available quantity of the `Book`.
+    -   Returns a `BookLoanResponse`.
+5.  **`SMS.UI`:** Confirms the loan is successful.
+
+## 8. Inventory Management Workflows
+
+### 8.1. Adding New Inventory (Administrator)
+
+1.  **Administrator Action:** Navigates to "Inventory Management" and clicks "Add Item".
+2.  **`SMS.UI`:** Renders a form for the new inventory item.
+3.  **Administrator Action:** Fills out the item details (name, quantity, price, etc.) and submits.
+4.  **`SMS.UI`:** Sends a `CreateInventoryItemRequest` to the API Gateway.
+5.  **API Gateway:** Routes the request to the **Inventory Service**.
+6.  **Inventory Service:** Creates an `InventoryItem` record and returns an `InventoryItemResponse`.
+7.  **`SMS.UI`:** Displays a success message.
+
+## 9. Payroll Management Workflows
+
+### 9.1. Processing Monthly Salaries (Administrator)
+
+1.  **Administrator Action:** Initiates the monthly payroll run from the "Payroll" section.
+2.  **`SMS.UI`:** Sends a request to the API Gateway to process payroll.
+3.  **API Gateway:** Routes the request to the **Payroll Service**.
+4.  **Payroll Service:**
+    -   For each teacher, fetches their base `Salary`.
+    -   Calculates total earnings by adding any `Bonus` records for the month.
+    -   Calculates total deductions by adding any `Deduction` records for the month.
+    -   Generates a payslip record (entity not yet defined, for future enhancement).
+    -   Returns a summary report of the payroll run.
+5.  **`SMS.UI`:** Displays the payroll summary.
+
+## 10. Reporting Workflows
+
+### 10.1. Generating a Report (Administrator)
+
+1.  **Administrator Action:** Navigates to the "Reports" section and selects a report to generate (e.g., "Student Attendance Report").
+2.  **`SMS.UI`:** Sends a request to the API Gateway, specifying the report to be generated.
+3.  **API Gateway:** Routes the request to the **Reporting Service**.
+4.  **Reporting Service:**
+    -   Retrieves the `Report` definition, which contains the SQL query.
+    -   Executes the query against the relevant database(s) (e.g., may need to query **School Core Service** and **Billing Service** databases).
+    -   Formats the data for the report.
+    -   Returns the generated report data, possibly including data for graphical representation.
+5.  **`SMS.UI`:** Renders the report, including any charts or graphs.
