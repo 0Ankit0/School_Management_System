@@ -9,6 +9,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Exporter;
 using Microsoft.Extensions.ServiceDiscovery;
+using SMS.ServiceDefaults;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -122,6 +123,23 @@ public static class Extensions
             });
         }
 
+        return app;
+    }
+
+    public static IHostApplicationBuilder AddEndpoints(this IHostApplicationBuilder builder)
+    {
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+        return builder;
+    }
+
+    public static WebApplication MapEndpoints(this WebApplication app)
+    {
+        var endpoints = app.Services.GetServices<IEndpoint>();
+        foreach (var endpoint in endpoints)
+        {
+            endpoint.MapEndpoints(app);
+        }
         return app;
     }
 }
