@@ -1,0 +1,234 @@
+@page "/academic-years-simple"
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper Class="pa-6" Elevation="3">
+        <div class="flex justify-between items-center mb-6">
+            <MudText Typo="Typo.h4" Class="font-bold text-gray-800">Academic Years Management</MudText>
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="Icons.Material.Filled.Add"
+                      OnClick="ShowCreateForm">
+                Add Academic Year
+            </MudButton>
+        </div>
+        
+        @if (showCreateForm)
+        {
+            <MudPaper Class="pa-4 mb-6" Style="background-color: #f9fafb;">
+                <MudText Typo="Typo.h6" Class="mb-4">Add New Academic Year</MudText>
+                <MudGrid>
+                    <MudItem xs="12" md="4">
+                        <MudTextField @bind-Value="newAcademicYear.Name" 
+                                     Label="Name" 
+                                     Placeholder="e.g., 2024-2025" 
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudDatePicker @bind-Date="startDate" 
+                                      Label="Start Date" 
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudDatePicker @bind-Date="endDate" 
+                                      Label="End Date" 
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+                <div class="mt-4">
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Success" 
+                              StartIcon="Icons.Material.Filled.Save"
+                              OnClick="SaveAcademicYear"
+                              Class="mr-2">
+                        Save
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              Color="Color.Secondary" 
+                              StartIcon="Icons.Material.Filled.Cancel"
+                              OnClick="CancelCreate">
+                        Cancel
+                    </MudButton>
+                </div>
+            </MudPaper>
+        }
+
+        @if (academicYears == null)
+        {
+            <div class="text-center py-12">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                <MudText Class="mt-4">Loading academic years...</MudText>
+            </div>
+        }
+        else if (!academicYears.Any())
+        {
+            <div class="text-center py-12">
+                <MudText Typo="Typo.h6" Class="text-gray-600 mb-2">No Academic Years Found</MudText>
+                <MudText Class="text-gray-500 mb-4">Get started by creating your first academic year.</MudText>
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          StartIcon="Icons.Material.Filled.Add"
+                          OnClick="ShowCreateForm">
+                    Add Academic Year
+                </MudButton>
+            </div>
+        }
+        else
+        {
+            <MudTable Items="academicYears" Dense="true" Hover="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Start Date</MudTh>
+                    <MudTh>End Date</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">
+                        <MudText Typo="Typo.body1" Class="font-medium">@context.Name</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Start Date">
+                        <MudText>@context.StartDate.ToString("MMM dd, yyyy")</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="End Date">
+                        <MudText>@context.EndDate.ToString("MMM dd, yyyy")</MudText>
+                    </MudTd>
+                    <MudTd DataLabel="Status">
+                        @if (context.IsActive)
+                        {
+                            <MudChip T="string" Color="Color.Success" Size="Size.Small">
+                                <MudIcon Icon="Icons.Material.Filled.CheckCircle" Size="Size.Small" />
+                                Active
+                            </MudChip>
+                        }
+                        else
+                        {
+                            <MudChip T="string" Color="Color.Default" Size="Size.Small">
+                                <MudIcon Icon="Icons.Material.Filled.Circle" Size="Size.Small" />
+                                Inactive
+                            </MudChip>
+                        }
+                    </MudTd>
+                    <MudTd DataLabel="Actions">
+                        <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                            <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                          Color="Color.Warning" 
+                                          Size="Size.Small"
+                                          OnClick="(() => EditAcademicYear(context))" />
+                            <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                          Color="Color.Error" 
+                                          Size="Size.Small"
+                                          OnClick="(() => DeleteAcademicYear(context.Id))" />
+                            @if (!context.IsActive)
+                            {
+                                <MudIconButton Icon="Icons.Material.Filled.PlayArrow" 
+                                              Color="Color.Info" 
+                                              Size="Size.Small"
+                                              OnClick="(() => SetActive(context.Id))" />
+                            }
+                        </MudButtonGroup>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<AcademicYearResponse>? academicYears;
+    private AcademicYearResponse newAcademicYear = new();
+    private bool showCreateForm = false;
+    private DateTime? startDate;
+    private DateTime? endDate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAcademicYears();
+    }
+
+    private async Task LoadAcademicYears()
+    {
+        await Task.Delay(500); // Simulate loading
+        
+        // Mock data - replace with actual API call
+        academicYears = new List<AcademicYearResponse>
+        {
+            new() 
+            { 
+                Id = Guid.NewGuid(), 
+                Name = "2024-2025", 
+                StartDate = new DateTime(2024, 9, 1), 
+                EndDate = new DateTime(2025, 6, 30), 
+                IsActive = true 
+            },
+            new() 
+            { 
+                Id = Guid.NewGuid(), 
+                Name = "2023-2024", 
+                StartDate = new DateTime(2023, 9, 1), 
+                EndDate = new DateTime(2024, 6, 30), 
+                IsActive = false 
+            }
+        };
+    }
+
+    private void ShowCreateForm()
+    {
+        showCreateForm = true;
+        newAcademicYear = new AcademicYearResponse();
+        startDate = null;
+        endDate = null;
+    }
+
+    private void CancelCreate()
+    {
+        showCreateForm = false;
+        newAcademicYear = new AcademicYearResponse();
+        startDate = null;
+        endDate = null;
+    }
+
+    private async Task SaveAcademicYear()
+    {
+        // Validate
+        if (string.IsNullOrWhiteSpace(newAcademicYear.Name) || startDate == null || endDate == null)
+            return;
+
+        // Mock save - replace with actual API call
+        var academicYear = new AcademicYearResponse
+        {
+            Id = Guid.NewGuid(),
+            Name = newAcademicYear.Name,
+            StartDate = startDate.Value,
+            EndDate = endDate.Value,
+            IsActive = false
+        };
+
+        academicYears?.Add(academicYear);
+        CancelCreate();
+    }
+
+    private void EditAcademicYear(AcademicYearResponse year)
+    {
+        // Implement edit logic
+    }
+
+    private void DeleteAcademicYear(Guid id)
+    {
+        academicYears?.RemoveAll(x => x.Id == id);
+    }
+
+    private void SetActive(Guid id)
+    {
+        if (academicYears != null)
+        {
+            // Deactivate all
+            foreach (var year in academicYears)
+                year.IsActive = false;
+            
+            // Activate the selected one
+            var selectedYear = academicYears.FirstOrDefault(x => x.Id == id);
+            if (selectedYear != null)
+                selectedYear.IsActive = true;
+        }
+    }
+}

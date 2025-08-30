@@ -1,0 +1,270 @@
+@page "/"
+@page "/dashboard"
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <div class="mb-6">
+        <MudText Typo="Typo.h3" Class="font-bold text-gray-800 mb-2">School Management System Dashboard</MudText>
+        <MudText Class="text-gray-600">Welcome to your school management dashboard. Here's an overview of your school's statistics.</MudText>
+    </div>
+
+    <!-- Statistics Cards -->
+    <MudGrid Class="mb-8">
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-6 text-center" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;" Elevation="3">
+                <MudText Typo="Typo.h4" Class="font-bold">@totalStudents</MudText>
+                <MudText Typo="Typo.subtitle1">Total Students</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-6 text-center" Style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;" Elevation="3">
+                <MudText Typo="Typo.h4" Class="font-bold">@totalTeachers</MudText>
+                <MudText Typo="Typo.subtitle1">Total Teachers</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-6 text-center" Style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;" Elevation="3">
+                <MudText Typo="Typo.h4" Class="font-bold">@totalClasses</MudText>
+                <MudText Typo="Typo.subtitle1">Total Classes</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudPaper Class="pa-6 text-center" Style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;" Elevation="3">
+                <MudText Typo="Typo.h4" Class="font-bold">@totalCourses</MudText>
+                <MudText Typo="Typo.subtitle1">Total Courses</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Quick Actions -->
+    <MudGrid Class="mb-8">
+        <MudItem xs="12" lg="6">
+            <MudPaper Class="pa-6" Elevation="3">
+                <MudText Typo="Typo.h5" Class="mb-4">Quick Actions</MudText>
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudButton Variant="Variant.Filled" 
+                                  Color="Color.Primary" 
+                                  StartIcon="Icons.Material.Filled.School"
+                                  Href="/students" 
+                                  FullWidth="true"
+                                  Size="Size.Large">
+                            Manage Students
+                        </MudButton>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudButton Variant="Variant.Filled" 
+                                  Color="Color.Success" 
+                                  StartIcon="Icons.Material.Filled.Person"
+                                  Href="/teachers" 
+                                  FullWidth="true"
+                                  Size="Size.Large">
+                            Manage Teachers
+                        </MudButton>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudButton Variant="Variant.Filled" 
+                                  Color="Color.Info" 
+                                  StartIcon="Icons.Material.Filled.Class"
+                                  Href="/classes" 
+                                  FullWidth="true"
+                                  Size="Size.Large">
+                            Manage Classes
+                        </MudButton>
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudButton Variant="Variant.Filled" 
+                                  Color="Color.Warning" 
+                                  StartIcon="Icons.Material.Filled.CalendarToday"
+                                  Href="/academic-years" 
+                                  FullWidth="true"
+                                  Size="Size.Large">
+                            Academic Years
+                        </MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" lg="6">
+            <MudPaper Class="pa-6" Elevation="3">
+                <MudText Typo="Typo.h5" Class="mb-4">Recent Activities</MudText>
+                @if (recentActivities?.Any() == true)
+                {
+                    <MudList T="string">
+                        @foreach (var activity in recentActivities.Take(5))
+                        {
+                            <MudListItem>
+                                <div class="flex items-center space-x-3 p-2 bg-gray-50 rounded">
+                                    <div class="text-2xl">@activity.Icon</div>
+                                    <div class="flex-1">
+                                        <MudText Typo="Typo.body2" Class="font-medium text-gray-800">@activity.Title</MudText>
+                                        <MudText Typo="Typo.caption" Class="text-gray-500">@activity.Timestamp.ToString("MMM dd, HH:mm")</MudText>
+                                    </div>
+                                </div>
+                            </MudListItem>
+                        }
+                    </MudList>
+                }
+                else
+                {
+                    <MudText Class="text-gray-500 text-center py-4">No recent activities</MudText>
+                }
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Current Academic Year -->
+    <MudPaper Class="pa-6 mb-6" Elevation="3">
+        <MudText Typo="Typo.h5" Class="mb-4">Current Academic Year</MudText>
+        @if (currentAcademicYear != null)
+        {
+            <MudGrid>
+                <MudItem xs="12" md="4" Class="text-center">
+                    <MudText Typo="Typo.h4" Class="font-bold text-blue-600">@currentAcademicYear.Name</MudText>
+                    <MudText Class="text-gray-600">Academic Year</MudText>
+                </MudItem>
+                <MudItem xs="12" md="4" Class="text-center">
+                    <MudText Typo="Typo.h6" Class="font-semibold text-green-600">@currentAcademicYear.StartDate.ToString("MMM dd, yyyy")</MudText>
+                    <MudText Class="text-gray-600">Start Date</MudText>
+                </MudItem>
+                <MudItem xs="12" md="4" Class="text-center">
+                    <MudText Typo="Typo.h6" Class="font-semibold text-red-600">@currentAcademicYear.EndDate.ToString("MMM dd, yyyy")</MudText>
+                    <MudText Class="text-gray-600">End Date</MudText>
+                </MudItem>
+            </MudGrid>
+            <div class="mt-4 text-center">
+                <MudProgressLinear Color="Color.Primary" Value="@progressPercentage" Class="mb-2" />
+                <MudText Typo="Typo.caption" Class="text-gray-600">Academic year progress: @progressPercentage.ToString("F1")%</MudText>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-8">
+                <MudText Class="text-gray-600 mb-4">No active academic year found</MudText>
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          Href="/academic-years">
+                    Set Up Academic Year
+                </MudButton>
+            </div>
+        }
+    </MudPaper>
+
+    <!-- System Links -->
+    <MudGrid>
+        <MudItem xs="6" sm="4" md="2">
+            <MudPaper Class="pa-4 text-center hover:shadow-lg transition-all" Elevation="2">
+                <MudIconButton Icon="Icons.Material.Filled.Grade" 
+                              Size="Size.Large" 
+                              Color="Color.Primary"
+                              Href="/grades" />
+                <MudText Typo="Typo.body2" Class="font-medium">Grades</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="4" md="2">
+            <MudPaper Class="pa-4 text-center hover:shadow-lg transition-all" Elevation="2">
+                <MudIconButton Icon="Icons.Material.Filled.Assignment" 
+                              Size="Size.Large" 
+                              Color="Color.Primary"
+                              Href="/assignments" />
+                <MudText Typo="Typo.body2" Class="font-medium">Assignments</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="4" md="2">
+            <MudPaper Class="pa-4 text-center hover:shadow-lg transition-all" Elevation="2">
+                <MudIconButton Icon="Icons.Material.Filled.CheckCircle" 
+                              Size="Size.Large" 
+                              Color="Color.Primary"
+                              Href="/attendance" />
+                <MudText Typo="Typo.body2" Class="font-medium">Attendance</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="4" md="2">
+            <MudPaper Class="pa-4 text-center hover:shadow-lg transition-all" Elevation="2">
+                <MudIconButton Icon="Icons.Material.Filled.AttachMoney" 
+                              Size="Size.Large" 
+                              Color="Color.Primary"
+                              Href="/billing" />
+                <MudText Typo="Typo.body2" Class="font-medium">Billing</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="4" md="2">
+            <MudPaper Class="pa-4 text-center hover:shadow-lg transition-all" Elevation="2">
+                <MudIconButton Icon="Icons.Material.Filled.LibraryBooks" 
+                              Size="Size.Large" 
+                              Color="Color.Primary"
+                              Href="/library" />
+                <MudText Typo="Typo.body2" Class="font-medium">Library</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="6" sm="4" md="2">
+            <MudPaper Class="pa-4 text-center hover:shadow-lg transition-all" Elevation="2">
+                <MudIconButton Icon="Icons.Material.Filled.Assessment" 
+                              Size="Size.Large" 
+                              Color="Color.Primary"
+                              Href="/reports" />
+                <MudText Typo="Typo.body2" Class="font-medium">Reports</MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private int totalStudents = 0;
+    private int totalTeachers = 0;
+    private int totalClasses = 0;
+    private int totalCourses = 0;
+    
+    private AcademicYearResponse? currentAcademicYear;
+    private double progressPercentage = 0;
+    
+    private List<RecentActivity>? recentActivities;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardData();
+    }
+    
+    private async Task LoadDashboardData()
+    {
+        await Task.Delay(500); // Simulate loading
+        
+        // Load statistics (replace with actual API calls)
+        totalStudents = 1247;
+        totalTeachers = 89;
+        totalClasses = 45;
+        totalCourses = 156;
+        
+        // Load current academic year
+        currentAcademicYear = new AcademicYearResponse
+        {
+            Id = Guid.NewGuid(),
+            Name = "2024-2025",
+            StartDate = new DateTime(2024, 9, 1),
+            EndDate = new DateTime(2025, 6, 30),
+            IsActive = true
+        };
+        
+        // Calculate progress
+        var totalDays = (currentAcademicYear.EndDate - currentAcademicYear.StartDate).TotalDays;
+        var elapsed = (DateTime.Now - currentAcademicYear.StartDate).TotalDays;
+        progressPercentage = Math.Max(0, Math.Min(100, (elapsed / totalDays) * 100));
+        
+        // Load recent activities
+        recentActivities = new List<RecentActivity>
+        {
+            new() { Icon = "👨‍🎓", Title = "New student enrolled: John Smith", Timestamp = DateTime.Now.AddMinutes(-15) },
+            new() { Icon = "📚", Title = "Library book returned: Mathematics Textbook", Timestamp = DateTime.Now.AddHours(-2) },
+            new() { Icon = "💰", Title = "Payment received from Jane Doe", Timestamp = DateTime.Now.AddHours(-4) },
+            new() { Icon = "📝", Title = "Assignment submitted: Physics Lab Report", Timestamp = DateTime.Now.AddHours(-6) },
+            new() { Icon = "✅", Title = "Attendance marked for Grade 10A", Timestamp = DateTime.Now.AddHours(-8) }
+        };
+    }
+    
+    public class RecentActivity
+    {
+        public string Icon { get; set; } = "";
+        public string Title { get; set; } = "";
+        public DateTime Timestamp { get; set; }
+    }
+}

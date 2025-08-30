@@ -8,10 +8,19 @@
 
   <ItemGroup>
     <SupportedPlatform Include="browser" />
+    <SupportedPlatform Include="android" />
+    <SupportedPlatform Include="ios" />
+    <SupportedPlatform Include="maccatalyst" />
+    <SupportedPlatform Include="windows" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.8" />
+    <!-- Cross-platform Blazor components -->
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="9.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.8" />
+    <PackageReference Include="System.Net.Http.Json" Version="9.0.8" />
+    <!-- MudBlazor is cross-platform compatible -->
+    <PackageReference Include="MudBlazor" Version="7.14.1" />
   </ItemGroup>
 
   <ItemGroup>

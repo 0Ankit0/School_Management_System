@@ -1,39 +1,109 @@
 @page "/students"
-@using SMS.Contracts.Students
-@using System.Net.Http.Json
+@layout MainLayout
 
-<h3>Students</h3>
-
-@if (students == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var student in students)
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudCard>
+        <MudCardHeader>
+            <CardHeaderContent>
+                <div class="flex justify-between items-center w-full">
+                    <MudText Typo="Typo.h4" Class="mb-0">
+                        <MudIcon Icon="Icons.Material.Filled.School" Class="mr-2" />
+                        Students Management
+                    </MudText>
+                    <MudButton 
+                        Variant="Variant.Filled" 
+                        Color="Color.Primary" 
+                        StartIcon="@Icons.Material.Filled.Add"
+                        Href="/students/create"
+                        Class="ml-auto">
+                        Add Student
+                    </MudButton>
+                </div>
+            </CardHeaderContent>
+        </MudCardHeader>
+        
+        <MudCardContent>
+            @if (students == null)
             {
-                <tr>
-                    <td>@student.FirstName</td>
-                    <td>@student.LastName</td>
-                    <td>@student.Email</td>
-                    <td>
-                        <a href="/students/@student.Id">Details</a> |
-                        <a href="/students/edit/@student.Id">Edit</a> |
-                        <button @onclick="(() => DeleteStudent(student.Id))" class="btn btn-danger btn-sm">Delete</button>
-                    </td>
-                </tr>
+                <div class="flex justify-center items-center py-12">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
+                    <MudText Class="ml-4" Typo="Typo.body1">Loading students...</MudText>
+                </div>
             }
-        </tbody>
-    </table>
-    <a href="/students/create" class="btn btn-primary">Create New Student</a>
-}
+            else if (!students.Any())
+            {
+                <div class="text-center py-12">
+                    <MudIcon Icon="Icons.Material.Filled.School" Style="font-size: 4rem;" Color="Color.Secondary" Class="mb-4" />
+                    <MudText Typo="Typo.h6" Class="mb-2">No Students Found</MudText>
+                    <MudText Color="Color.Secondary">Start by adding your first student to the system.</MudText>
+                    <MudButton 
+                        Variant="Variant.Filled" 
+                        Color="Color.Primary" 
+                        StartIcon="@Icons.Material.Filled.Add"
+                        Href="/students/create"
+                        Class="mt-4">
+                        Add First Student
+                    </MudButton>
+                </div>
+            }
+            else
+            {
+                <div class="mb-4">
+                    <MudTextField @bind-Value="searchTerm" 
+                                  Placeholder="Search students..." 
+                                  Adornment="Adornment.Start" 
+                                  AdornmentIcon="Icons.Material.Filled.Search"
+                                  IconSize="Size.Medium"
+                                  Class="max-w-md" />
+                </div>
+
+                <MudTable T="StudentResponse" Items="@filteredStudents" 
+                          Hover="true" 
+                          Breakpoint="Breakpoint.Sm" 
+                          LoadingProgressColor="Color.Info"
+                          Class="sms-data-grid">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Email</MudTh>
+                        <MudTh>Phone</MudTh>
+                        <MudTh>Date of Birth</MudTh>
+                        <MudTh>Gender</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.FirstName @context.LastName</MudTd>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd DataLabel="Phone">@context.Phone</MudTd>
+                        <MudTd DataLabel="Date of Birth">@context.DateOfBirth.ToString("yyyy-MM-dd")</MudTd>
+                        <MudTd DataLabel="Gender">@context.Gender</MudTd>
+                        <MudTd DataLabel="Actions">
+                            <div class="flex gap-2 justify-center">
+                                <MudIconButton 
+                                    Icon="@Icons.Material.Filled.Visibility" 
+                                    Color="Color.Info" 
+                                    Size="Size.Small"
+                                    Href="@($"/students/{context.Id}")" />
+                                <MudIconButton 
+                                    Icon="@Icons.Material.Filled.Edit" 
+                                    Color="Color.Primary" 
+                                    Size="Size.Small"
+                                    Href="@($"/students/edit/{context.Id}")" />
+                                <MudIconButton 
+                                    Icon="@Icons.Material.Filled.Delete" 
+                                    Color="Color.Error" 
+                                    Size="Size.Small"
+                                    OnClick="@(() => DeleteStudent(context.Id))" />
+                            </div>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+
+                <div class="mt-4 flex justify-between items-center">
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        Showing @filteredStudents.Count() of @students.Count() students
+                    </MudText>
+                </div>
+            }
+        </MudCardContent>
+    </MudCard>
+</MudContainer>

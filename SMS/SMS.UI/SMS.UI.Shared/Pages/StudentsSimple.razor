@@ -1,0 +1,162 @@
+@page "/students-simple"
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">Students Management</h2>
+                <a href="/students/create" class="btn btn-primary">
+                    ➕ Add Student
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            @if (students == null)
+            {
+                <div class="text-center py-12">
+                    <div class="spinner"></div>
+                    <p class="mt-4">Loading students...</p>
+                </div>
+            }
+            else if (!students.Any())
+            {
+                <div class="text-center py-12">
+                    <h3 class="text-lg font-semibold text-gray-600 mb-2">No Students Found</h3>
+                    <p class="text-gray-500 mb-4">Start by adding your first student to the system.</p>
+                    <a href="/students/create" class="btn btn-primary">
+                        ➕ Add First Student
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="mb-4">
+                    <input type="text" @bind="searchTerm" @bind:event="oninput" 
+                           placeholder="Search students..." 
+                           class="form-control max-w-md" />
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Date of Birth</th>
+                                <th>Gender</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var student in filteredStudents)
+                            {
+                                <tr>
+                                    <td>@student.Id.ToString()[..8]...</td>
+                                    <td>@student.FirstName @student.LastName</td>
+                                    <td>@student.Email</td>
+                                    <td>@student.Phone</td>
+                                    <td>@student.DateOfBirth.ToString("yyyy-MM-dd")</td>
+                                    <td>@student.Gender</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/students/@student.Id" class="btn btn-sm btn-info" title="View">👁️</a>
+                                            <a href="/students/edit/@student.Id" class="btn btn-sm btn-warning" title="Edit">✏️</a>
+                                            <button @onclick="(() => DeleteStudent(student.Id))" class="btn btn-sm btn-danger" title="Delete">🗑️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 text-sm text-gray-600">
+                    Showing @filteredStudents.Count() of @students.Count() students
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<StudentResponse>? students = new();
+    private IEnumerable<StudentResponse> filteredStudents => students?.Where(FilterStudents) ?? new List<StudentResponse>();
+    private string searchTerm = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStudents();
+    }
+
+    private async Task LoadStudents()
+    {
+        await Task.Delay(500); // Simulate loading
+        try
+        {
+            // TODO: Replace with actual API call to get students
+            students = new List<StudentResponse>
+            {
+                new StudentResponse
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@school.com",
+                    Phone = "123-456-7890",
+                    DateOfBirth = new DateTime(2008, 5, 15),
+                    Gender = "Male",
+                    Address = "123 Main St"
+                },
+                new StudentResponse
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "Jane",
+                    LastName = "Smith",
+                    Email = "jane.smith@school.com",
+                    Phone = "123-456-7891",
+                    DateOfBirth = new DateTime(2009, 3, 22),
+                    Gender = "Female",
+                    Address = "456 Oak Ave"
+                },
+                new StudentResponse
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "Mike",
+                    LastName = "Johnson",
+                    Email = "mike.johnson@school.com",
+                    Phone = "123-456-7892",
+                    DateOfBirth = new DateTime(2008, 11, 8),
+                    Gender = "Male",
+                    Address = "789 Pine Dr"
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading students: {ex.Message}");
+        }
+    }
+
+    private bool FilterStudents(StudentResponse student)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return true;
+
+        return (student.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (student.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (student.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (student.Phone?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+
+    private void DeleteStudent(Guid studentId)
+    {
+        if (students != null)
+        {
+            students.RemoveAll(s => s.Id == studentId);
+            StateHasChanged();
+        }
+    }
+}

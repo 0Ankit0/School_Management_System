@@ -1,0 +1,337 @@
+@page "/grades"
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">Grades Management</h2>
+                <button @onclick="ShowCreateForm" class="btn btn-primary">
+                    ➕ Add Grade
+                </button>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            @if (showCreateForm)
+            {
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Add New Grade</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Student</label>
+                            <select @bind="newGrade.StudentId" class="form-control">
+                                <option value="">Select a student</option>
+                                @foreach (var student in availableStudents)
+                                {
+                                    <option value="@student.Id">@student.FirstName @student.LastName</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Course</label>
+                            <select @bind="newGrade.CourseId" class="form-control">
+                                <option value="">Select a course</option>
+                                @foreach (var course in availableCourses)
+                                {
+                                    <option value="@course.Id">@course.Name (@course.Code)</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Grade</label>
+                            <select @bind="newGrade.Grade" class="form-control">
+                                <option value="">Select grade</option>
+                                <option value="A+">A+ (97-100)</option>
+                                <option value="A">A (93-96)</option>
+                                <option value="A-">A- (90-92)</option>
+                                <option value="B+">B+ (87-89)</option>
+                                <option value="B">B (83-86)</option>
+                                <option value="B-">B- (80-82)</option>
+                                <option value="C+">C+ (77-79)</option>
+                                <option value="C">C (73-76)</option>
+                                <option value="C-">C- (70-72)</option>
+                                <option value="D">D (60-69)</option>
+                                <option value="F">F (0-59)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Points</label>
+                            <input type="number" @bind="newGrade.Points" class="form-control" placeholder="85" min="0" max="100" step="0.1" />
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Comments</label>
+                            <textarea @bind="newGrade.Comments" class="form-control" rows="3" placeholder="Optional comments about the grade..."></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <button @onclick="SaveGrade" class="btn btn-success">💾 Save</button>
+                        <button @onclick="CancelCreate" class="btn btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            }
+
+            @if (grades == null)
+            {
+                <div class="text-center py-12">
+                    <div class="spinner"></div>
+                    <p class="mt-4">Loading grades...</p>
+                </div>
+            }
+            else if (!grades.Any())
+            {
+                <div class="text-center py-12">
+                    <h3 class="text-lg font-semibold text-gray-600 mb-2">No Grades Found</h3>
+                    <p class="text-gray-500 mb-4">Start by adding your first grade to the system.</p>
+                    <button @onclick="ShowCreateForm" class="btn btn-primary">
+                        ➕ Add First Grade
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="mb-4 flex gap-4">
+                    <input type="text" @bind="searchTerm" @bind:event="oninput" 
+                           placeholder="Search grades..." 
+                           class="form-control max-w-md" />
+                    <select @bind="selectedGradeFilter" class="form-control max-w-xs">
+                        <option value="">All Grades</option>
+                        <option value="A">A Grades</option>
+                        <option value="B">B Grades</option>
+                        <option value="C">C Grades</option>
+                        <option value="D">D Grades</option>
+                        <option value="F">F Grades</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Grade</th>
+                                <th>Points</th>
+                                <th>Date</th>
+                                <th>Comments</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var grade in filteredGrades)
+                            {
+                                <tr>
+                                    <td>@grade.StudentName</td>
+                                    <td>@grade.CourseName</td>
+                                    <td>
+                                        <span class="badge @GetGradeBadgeClass(grade.Grade)">
+                                            @grade.Grade
+                                        </span>
+                                    </td>
+                                    <td>@grade.Points.ToString("F1")%</td>
+                                    <td>@grade.GradedDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@(string.IsNullOrEmpty(grade.Comments) ? "-" : grade.Comments)</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/grades/@grade.Id" class="btn btn-sm btn-info" title="View">👁️</a>
+                                            <a href="/grades/edit/@grade.Id" class="btn btn-sm btn-warning" title="Edit">✏️</a>
+                                            <button @onclick="(() => DeleteGrade(grade.Id))" class="btn btn-sm btn-danger" title="Delete">🗑️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 text-sm text-gray-600">
+                    Showing @filteredGrades.Count() of @grades.Count() grades
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<GradeResponse>? grades = new();
+    private IEnumerable<GradeResponse> filteredGrades => grades?.Where(FilterGrades) ?? new List<GradeResponse>();
+    private string searchTerm = "";
+    private string selectedGradeFilter = "";
+    private bool showCreateForm = false;
+    private CreateGradeRequest newGrade = new();
+
+    private List<StudentInfo> availableStudents = new();
+    private List<CourseInfo> availableCourses = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        await Task.Delay(500); // Simulate loading
+        try
+        {
+            // Load students for dropdown
+            availableStudents = new List<StudentInfo>
+            {
+                new StudentInfo { Id = Guid.NewGuid(), FirstName = "John", LastName = "Doe" },
+                new StudentInfo { Id = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" },
+                new StudentInfo { Id = Guid.NewGuid(), FirstName = "Mike", LastName = "Johnson" }
+            };
+
+            // Load courses for dropdown
+            availableCourses = new List<CourseInfo>
+            {
+                new CourseInfo { Id = Guid.NewGuid(), Name = "Algebra I", Code = "MATH101" },
+                new CourseInfo { Id = Guid.NewGuid(), Name = "Biology Fundamentals", Code = "BIO101" },
+                new CourseInfo { Id = Guid.NewGuid(), Name = "English Literature", Code = "ENG201" }
+            };
+
+            // TODO: Replace with actual API call
+            grades = new List<GradeResponse>
+            {
+                new GradeResponse
+                {
+                    Id = Guid.NewGuid(),
+                    StudentName = "John Doe",
+                    CourseName = "Algebra I",
+                    Grade = "A",
+                    Points = 92.5m,
+                    Comments = "Excellent understanding of algebraic concepts",
+                    GradedDate = DateTime.Now.AddDays(-5)
+                },
+                new GradeResponse
+                {
+                    Id = Guid.NewGuid(),
+                    StudentName = "Jane Smith",
+                    CourseName = "Biology Fundamentals",
+                    Grade = "B+",
+                    Points = 87.3m,
+                    Comments = "Good grasp of biological principles",
+                    GradedDate = DateTime.Now.AddDays(-3)
+                },
+                new GradeResponse
+                {
+                    Id = Guid.NewGuid(),
+                    StudentName = "Mike Johnson",
+                    CourseName = "English Literature",
+                    Grade = "B",
+                    Points = 84.0m,
+                    Comments = "",
+                    GradedDate = DateTime.Now.AddDays(-1)
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+    }
+
+    private bool FilterGrades(GradeResponse grade)
+    {
+        var matchesSearch = string.IsNullOrWhiteSpace(searchTerm) ||
+                           (grade.StudentName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                           (grade.CourseName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                           (grade.Grade?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        var matchesGradeFilter = string.IsNullOrWhiteSpace(selectedGradeFilter) ||
+                                (grade.Grade?.StartsWith(selectedGradeFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        return matchesSearch && matchesGradeFilter;
+    }
+
+    private string GetGradeBadgeClass(string grade)
+    {
+        return grade?.ToUpper() switch
+        {
+            "A+" or "A" or "A-" => "badge-success",
+            "B+" or "B" or "B-" => "badge-primary",
+            "C+" or "C" or "C-" => "badge-warning",
+            "D" => "badge-secondary",
+            "F" => "badge-danger",
+            _ => "badge-secondary"
+        };
+    }
+
+    private void ShowCreateForm()
+    {
+        newGrade = new CreateGradeRequest();
+        showCreateForm = true;
+    }
+
+    private void CancelCreate()
+    {
+        showCreateForm = false;
+        newGrade = new CreateGradeRequest();
+    }
+
+    private void SaveGrade()
+    {
+        if (grades != null && !string.IsNullOrWhiteSpace(newGrade.StudentId) && !string.IsNullOrWhiteSpace(newGrade.CourseId) && !string.IsNullOrWhiteSpace(newGrade.Grade))
+        {
+            var selectedStudent = availableStudents.FirstOrDefault(s => s.Id.ToString() == newGrade.StudentId);
+            var selectedCourse = availableCourses.FirstOrDefault(c => c.Id.ToString() == newGrade.CourseId);
+
+            var grade = new GradeResponse
+            {
+                Id = Guid.NewGuid(),
+                StudentName = selectedStudent != null ? $"{selectedStudent.FirstName} {selectedStudent.LastName}" : "Unknown Student",
+                CourseName = selectedCourse?.Name ?? "Unknown Course",
+                Grade = newGrade.Grade,
+                Points = newGrade.Points,
+                Comments = newGrade.Comments,
+                GradedDate = DateTime.Now
+            };
+
+            grades.Add(grade);
+            CancelCreate();
+            StateHasChanged();
+        }
+    }
+
+    private void DeleteGrade(Guid gradeId)
+    {
+        if (grades != null)
+        {
+            grades.RemoveAll(g => g.Id == gradeId);
+            StateHasChanged();
+        }
+    }
+
+    // Simplified models
+    public class CreateGradeRequest
+    {
+        public string StudentId { get; set; } = "";
+        public string CourseId { get; set; } = "";
+        public string Grade { get; set; } = "";
+        public decimal Points { get; set; }
+        public string Comments { get; set; } = "";
+    }
+
+    public class GradeResponse
+    {
+        public Guid Id { get; set; }
+        public string StudentName { get; set; } = "";
+        public string CourseName { get; set; } = "";
+        public string Grade { get; set; } = "";
+        public decimal Points { get; set; }
+        public string Comments { get; set; } = "";
+        public DateTime GradedDate { get; set; }
+    }
+
+    public class StudentInfo
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; } = "";
+        public string LastName { get; set; } = "";
+    }
+
+    public class CourseInfo
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Code { get; set; } = "";
+    }
+}

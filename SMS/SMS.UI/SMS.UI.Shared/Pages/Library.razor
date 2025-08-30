@@ -1,0 +1,522 @@
+@page "/library"
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudPaper Class="pa-6" Elevation="3">
+        <div class="flex justify-between items-center mb-6">
+            <MudText Typo="Typo.h4" Class="font-bold text-gray-800">Library Management</MudText>
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="Icons.Material.Filled.Add"
+                      OnClick="ShowCreateForm">
+                Add Book
+            </MudButton>
+        </div>
+        
+        @if (showCreateForm)
+        {
+            <MudPaper Class="mb-6 pa-4 bg-gray-50" Elevation="1">
+                <MudText Typo="Typo.h5" Class="mb-4">Add New Book</MudText>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newBook.Title" 
+                                     Label="Title" 
+                                     Placeholder="To Kill a Mockingbird"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newBook.Author" 
+                                     Label="Author" 
+                                     Placeholder="Harper Lee"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newBook.ISBN" 
+                                     Label="ISBN" 
+                                     Placeholder="978-0-06-112008-4"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect @bind-Value="newBook.Category" 
+                                  Label="Category"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem Value="@("Fiction")">Fiction</MudSelectItem>
+                            <MudSelectItem Value="@("Non-Fiction")">Non-Fiction</MudSelectItem>
+                            <MudSelectItem Value="@("Science")">Science</MudSelectItem>
+                            <MudSelectItem Value="@("Mathematics")">Mathematics</MudSelectItem>
+                            <MudSelectItem Value="@("History")">History</MudSelectItem>
+                            <MudSelectItem Value="@("Literature")">Literature</MudSelectItem>
+                            <MudSelectItem Value="@("Reference")">Reference</MudSelectItem>
+                            <MudSelectItem Value="@("Textbook")">Textbook</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newBook.Publisher" 
+                                     Label="Publisher" 
+                                     Placeholder="Penguin Books"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudNumericField @bind-Value="newBook.PublicationYear" 
+                                        Label="Publication Year" 
+                                        Min="1800" 
+                                        Max="@DateTime.Now.Year"
+                                        Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudNumericField @bind-Value="newBook.TotalCopies" 
+                                        Label="Total Copies" 
+                                        Min="1"
+                                        Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newBook.ShelfLocation" 
+                                     Label="Shelf Location" 
+                                     Placeholder="A-01-05"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="newBook.Description" 
+                                     Label="Description" 
+                                     Placeholder="Book description..."
+                                     Lines="3"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+                <div class="mt-4 flex gap-2">
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Success" 
+                              StartIcon="Icons.Material.Filled.Save"
+                              OnClick="SaveBook">
+                        Save Book
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              Color="Color.Default"
+                              StartIcon="Icons.Material.Filled.Cancel"
+                              OnClick="CancelCreate">
+                        Cancel
+                    </MudButton>
+                </div>
+            </MudPaper>
+        }
+
+        @if (books == null)
+        {
+            <div class="text-center py-12">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                <MudText Class="mt-4">Loading library books...</MudText>
+            </div>
+        }
+        else if (!books.Any())
+        {
+            <div class="text-center py-12">
+                <MudText Typo="Typo.h5" Class="text-gray-600 mb-2">No Books Found</MudText>
+                <MudText Class="text-gray-500 mb-4">Start by adding your first book to the library.</MudText>
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          StartIcon="Icons.Material.Filled.Add"
+                          OnClick="ShowCreateForm">
+                    Add First Book
+                </MudButton>
+            </div>
+        }
+        else
+        {
+            <div class="mb-4">
+                <MudGrid Class="mb-4">
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-4 bg-blue-50" Elevation="1">
+                            <MudText Typo="Typo.subtitle1" Class="font-semibold text-blue-800">Total Books</MudText>
+                            <MudText Typo="Typo.h4" Class="font-bold text-blue-600">@GetTotalBooks()</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-4 bg-green-50" Elevation="1">
+                            <MudText Typo="Typo.subtitle1" Class="font-semibold text-green-800">Available</MudText>
+                            <MudText Typo="Typo.h4" Class="font-bold text-green-600">@GetAvailableBooks()</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-4 bg-yellow-50" Elevation="1">
+                            <MudText Typo="Typo.subtitle1" Class="font-semibold text-yellow-800">Borrowed</MudText>
+                            <MudText Typo="Typo.h4" Class="font-bold text-yellow-600">@GetBorrowedBooks()</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-4 bg-red-50" Elevation="1">
+                            <MudText Typo="Typo.subtitle1" Class="font-semibold text-red-800">Overdue</MudText>
+                            <MudText Typo="Typo.h4" Class="font-bold text-red-600">@GetOverdueBooks()</MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+
+                <MudGrid Class="mb-4">
+                    <MudItem xs="12" md="4">
+                        <MudTextField @bind-Value="searchTerm" 
+                                     @bind-Value:event="oninput"
+                                     Label="Search books..." 
+                                     Variant="Variant.Outlined"
+                                     Adornment="Adornment.Start"
+                                     AdornmentIcon="Icons.Material.Filled.Search" />
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="selectedCategoryFilter" 
+                                  Label="Category Filter"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem Value="@("")">All Categories</MudSelectItem>
+                            <MudSelectItem Value="@("Fiction")">Fiction</MudSelectItem>
+                            <MudSelectItem Value="@("Non-Fiction")">Non-Fiction</MudSelectItem>
+                            <MudSelectItem Value="@("Science")">Science</MudSelectItem>
+                            <MudSelectItem Value="@("Mathematics")">Mathematics</MudSelectItem>
+                            <MudSelectItem Value="@("History")">History</MudSelectItem>
+                            <MudSelectItem Value="@("Literature")">Literature</MudSelectItem>
+                            <MudSelectItem Value="@("Reference")">Reference</MudSelectItem>
+                            <MudSelectItem Value="@("Textbook")">Textbook</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudSelect @bind-Value="selectedStatusFilter" 
+                                  Label="Status Filter"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem Value="@("")">All Status</MudSelectItem>
+                            <MudSelectItem Value="@("Available")">Available</MudSelectItem>
+                            <MudSelectItem Value="@("Borrowed")">Borrowed</MudSelectItem>
+                            <MudSelectItem Value="@("Reserved")">Reserved</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+            </div>
+
+            <MudTable Items="@filteredBooks" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@(books == null)" LoadingProgressColor="Color.Info">
+                <HeaderContent>
+                    <MudTh>Book Details</MudTh>
+                    <MudTh>Category</MudTh>
+                    <MudTh>Copies</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Location</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Book Details">
+                        <div class="font-medium">@context.Title</div>
+                        <div class="text-sm text-gray-600">by @context.Author</div>
+                        <div class="text-xs text-gray-500">ISBN: @context.ISBN | @context.Publisher (@context.PublicationYear)</div>
+                    </MudTd>
+                    <MudTd DataLabel="Category">
+                        <MudChip T="string" Color="@GetCategoryColor(context.Category)" Size="Size.Small">
+                            @context.Category
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Copies">
+                        <div class="text-sm">
+                            <div>Available: @context.AvailableCopies</div>
+                            <div>Total: @context.TotalCopies</div>
+                        </div>
+                    </MudTd>
+                    <MudTd DataLabel="Status">
+                        <MudChip T="string" Color="@GetStatusColor(context.Status)" Size="Size.Small">
+                            @context.Status
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Location">@context.ShelfLocation</MudTd>
+                    <MudTd DataLabel="Actions">
+                        <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                            <MudIconButton Icon="Icons.Material.Filled.Visibility" 
+                                          Color="Color.Info" 
+                                          Href="@($"/library/{context.Id}")" />
+                            @if (context.AvailableCopies > 0)
+                            {
+                                <MudIconButton Icon="Icons.Material.Filled.MenuBook" 
+                                              Color="Color.Success" 
+                                              OnClick="@(() => BorrowBook(context.Id))" />
+                            }
+                            @if (context.BorrowedCopies > 0)
+                            {
+                                <MudIconButton Icon="Icons.Material.Filled.Undo" 
+                                              Color="Color.Primary" 
+                                              OnClick="@(() => ReturnBook(context.Id))" />
+                            }
+                            <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                          Color="Color.Warning" 
+                                          Href="@($"/library/edit/{context.Id}")" />
+                            <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                          Color="Color.Error" 
+                                          OnClick="@(() => DeleteBook(context.Id))" />
+                        </MudButtonGroup>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            <MudText Class="mt-4 text-sm text-gray-600">
+                Showing @filteredBooks.Count() of @books.Count() books
+            </MudText>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<BookResponse>? books = new();
+    private IEnumerable<BookResponse> filteredBooks => books?.Where(FilterBooks) ?? new List<BookResponse>();
+    private string searchTerm = "";
+    private string selectedCategoryFilter = "";
+    private string selectedStatusFilter = "";
+    private bool showCreateForm = false;
+    private CreateBookRequest newBook = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        await Task.Delay(500); // Simulate loading
+        try
+        {
+            // TODO: Replace with actual API call
+            books = new List<BookResponse>
+            {
+                new BookResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "To Kill a Mockingbird",
+                    Author = "Harper Lee",
+                    ISBN = "978-0-06-112008-4",
+                    Category = "Literature",
+                    Publisher = "HarperCollins",
+                    PublicationYear = 1960,
+                    TotalCopies = 5,
+                    AvailableCopies = 3,
+                    BorrowedCopies = 2,
+                    ShelfLocation = "A-01-05",
+                    Status = "Available",
+                    Description = "A gripping tale of racial injustice and childhood innocence"
+                },
+                new BookResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Calculus: Early Transcendentals",
+                    Author = "James Stewart",
+                    ISBN = "978-1-285-74155-0",
+                    Category = "Mathematics",
+                    Publisher = "Cengage Learning",
+                    PublicationYear = 2015,
+                    TotalCopies = 10,
+                    AvailableCopies = 7,
+                    BorrowedCopies = 3,
+                    ShelfLocation = "M-03-12",
+                    Status = "Available",
+                    Description = "Comprehensive calculus textbook for university students"
+                },
+                new BookResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "A Brief History of Time",
+                    Author = "Stephen Hawking",
+                    ISBN = "978-0-553-05340-1",
+                    Category = "Science",
+                    Publisher = "Bantam Books",
+                    PublicationYear = 1988,
+                    TotalCopies = 3,
+                    AvailableCopies = 0,
+                    BorrowedCopies = 3,
+                    ShelfLocation = "S-02-08",
+                    Status = "Borrowed",
+                    Description = "Exploration of cosmology and theoretical physics"
+                },
+                new BookResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "World History: Patterns of Interaction",
+                    Author = "Roger B. Beck",
+                    ISBN = "978-0-547-49157-6",
+                    Category = "History",
+                    Publisher = "McDougal Littell",
+                    PublicationYear = 2012,
+                    TotalCopies = 8,
+                    AvailableCopies = 6,
+                    BorrowedCopies = 2,
+                    ShelfLocation = "H-01-15",
+                    Status = "Available",
+                    Description = "Comprehensive world history textbook"
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+    }
+
+    private int GetTotalBooks()
+    {
+        return books?.Sum(b => b.TotalCopies) ?? 0;
+    }
+
+    private int GetAvailableBooks()
+    {
+        return books?.Sum(b => b.AvailableCopies) ?? 0;
+    }
+
+    private int GetBorrowedBooks()
+    {
+        return books?.Sum(b => b.BorrowedCopies) ?? 0;
+    }
+
+    private int GetOverdueBooks()
+    {
+        // TODO: Calculate actual overdue books based on borrowing records
+        return 2; // Placeholder
+    }
+
+    private bool FilterBooks(BookResponse book)
+    {
+        var matchesSearch = string.IsNullOrWhiteSpace(searchTerm) ||
+                           (book.Title?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                           (book.Author?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                           (book.ISBN?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        var matchesCategory = string.IsNullOrWhiteSpace(selectedCategoryFilter) ||
+                             (book.Category?.Equals(selectedCategoryFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        var matchesStatus = string.IsNullOrWhiteSpace(selectedStatusFilter) ||
+                           (book.Status?.Equals(selectedStatusFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        return matchesSearch && matchesCategory && matchesStatus;
+    }
+
+    private Color GetCategoryColor(string category)
+    {
+        return category?.ToLower() switch
+        {
+            "fiction" => Color.Primary,
+            "non-fiction" => Color.Info,
+            "science" => Color.Success,
+            "mathematics" => Color.Warning,
+            "history" => Color.Secondary,
+            "literature" => Color.Error,
+            "reference" => Color.Dark,
+            "textbook" => Color.Primary,
+            _ => Color.Default
+        };
+    }
+
+    private Color GetStatusColor(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "available" => Color.Success,
+            "borrowed" => Color.Warning,
+            "reserved" => Color.Info,
+            "out of stock" => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private void ShowCreateForm()
+    {
+        newBook = new CreateBookRequest
+        {
+            Category = "Fiction",
+            PublicationYear = DateTime.Now.Year,
+            TotalCopies = 1
+        };
+        showCreateForm = true;
+    }
+
+    private void CancelCreate()
+    {
+        showCreateForm = false;
+        newBook = new CreateBookRequest();
+    }
+
+    private void SaveBook()
+    {
+        if (books != null && !string.IsNullOrWhiteSpace(newBook.Title) && !string.IsNullOrWhiteSpace(newBook.Author))
+        {
+            var book = new BookResponse
+            {
+                Id = Guid.NewGuid(),
+                Title = newBook.Title,
+                Author = newBook.Author,
+                ISBN = newBook.ISBN,
+                Category = newBook.Category,
+                Publisher = newBook.Publisher,
+                PublicationYear = newBook.PublicationYear,
+                TotalCopies = newBook.TotalCopies,
+                AvailableCopies = newBook.TotalCopies,
+                BorrowedCopies = 0,
+                ShelfLocation = newBook.ShelfLocation,
+                Status = "Available",
+                Description = newBook.Description
+            };
+
+            books.Add(book);
+            CancelCreate();
+            StateHasChanged();
+        }
+    }
+
+    private void BorrowBook(Guid bookId)
+    {
+        var book = books?.FirstOrDefault(b => b.Id == bookId);
+        if (book != null && book.AvailableCopies > 0)
+        {
+            book.AvailableCopies--;
+            book.BorrowedCopies++;
+            book.Status = book.AvailableCopies > 0 ? "Available" : "Borrowed";
+            StateHasChanged();
+        }
+    }
+
+    private void ReturnBook(Guid bookId)
+    {
+        var book = books?.FirstOrDefault(b => b.Id == bookId);
+        if (book != null && book.BorrowedCopies > 0)
+        {
+            book.AvailableCopies++;
+            book.BorrowedCopies--;
+            book.Status = "Available";
+            StateHasChanged();
+        }
+    }
+
+    private void DeleteBook(Guid bookId)
+    {
+        if (books != null)
+        {
+            books.RemoveAll(b => b.Id == bookId);
+            StateHasChanged();
+        }
+    }
+
+    // Simplified models
+    public class CreateBookRequest
+    {
+        public string Title { get; set; } = "";
+        public string Author { get; set; } = "";
+        public string ISBN { get; set; } = "";
+        public string Category { get; set; } = "Fiction";
+        public string Publisher { get; set; } = "";
+        public int PublicationYear { get; set; } = DateTime.Now.Year;
+        public int TotalCopies { get; set; } = 1;
+        public string ShelfLocation { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
+
+    public class BookResponse
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = "";
+        public string Author { get; set; } = "";
+        public string ISBN { get; set; } = "";
+        public string Category { get; set; } = "";
+        public string Publisher { get; set; } = "";
+        public int PublicationYear { get; set; }
+        public int TotalCopies { get; set; }
+        public int AvailableCopies { get; set; }
+        public int BorrowedCopies { get; set; }
+        public string ShelfLocation { get; set; } = "";
+        public string Status { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
+}

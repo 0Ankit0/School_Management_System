@@ -1,0 +1,243 @@
+@page "/teachers"
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudPaper Class="pa-6" Elevation="3">
+        <div class="flex justify-between items-center mb-6">
+            <MudText Typo="Typo.h4" Class="font-bold text-gray-800">Teachers Management</MudText>
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="Icons.Material.Filled.Add"
+                      OnClick="ShowCreateForm">
+                Add Teacher
+            </MudButton>
+        </div>
+        
+        @if (showCreateForm)
+        {
+            <MudPaper Class="mb-6 pa-4 bg-gray-50" Elevation="1">
+                <MudText Typo="Typo.h5" Class="mb-4">Add New Teacher</MudText>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newTeacher.FirstName" 
+                                     Label="First Name" 
+                                     Placeholder="Enter first name"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newTeacher.LastName" 
+                                     Label="Last Name" 
+                                     Placeholder="Enter last name"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newTeacher.Email" 
+                                     Label="Email" 
+                                     Placeholder="teacher@school.com"
+                                     InputType="InputType.Email"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newTeacher.Phone" 
+                                     Label="Phone" 
+                                     Placeholder="123-456-7890"
+                                     InputType="InputType.Telephone"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newTeacher.Department" 
+                                     Label="Department" 
+                                     Placeholder="e.g., Mathematics"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+                <div class="mt-4 flex gap-2">
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Success" 
+                              StartIcon="Icons.Material.Filled.Save"
+                              OnClick="SaveTeacher">
+                        Save
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              Color="Color.Default"
+                              StartIcon="Icons.Material.Filled.Cancel"
+                              OnClick="CancelCreate">
+                        Cancel
+                    </MudButton>
+                </div>
+            </MudPaper>
+        }
+        @if (teachers == null)
+        {
+            <div class="text-center py-12">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                <MudText Class="mt-4">Loading teachers...</MudText>
+            </div>
+        }
+        else if (!teachers.Any())
+        {
+            <div class="text-center py-12">
+                <MudText Typo="Typo.h5" Class="text-gray-600 mb-2">No Teachers Found</MudText>
+                <MudText Class="text-gray-500 mb-4">Start by adding your first teacher to the system.</MudText>
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          StartIcon="Icons.Material.Filled.Add"
+                          OnClick="ShowCreateForm">
+                    Add First Teacher
+                </MudButton>
+            </div>
+        }
+        else
+        {
+            <div class="mb-4">
+                <MudTextField @bind-Value="searchTerm" 
+                             @bind-Value:event="oninput"
+                             Label="Search teachers..." 
+                             Variant="Variant.Outlined"
+                             Adornment="Adornment.Start"
+                             AdornmentIcon="Icons.Material.Filled.Search"
+                             Class="max-w-md" />
+            </div>
+
+            <MudTable Items="@filteredTeachers" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@(teachers == null)" LoadingProgressColor="Color.Info">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Phone</MudTh>
+                    <MudTh>Department</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.FirstName @context.LastName</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="Phone">@context.Phone</MudTd>
+                    <MudTd DataLabel="Department">@context.Department</MudTd>
+                    <MudTd DataLabel="Actions">
+                        <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                            <MudIconButton Icon="Icons.Material.Filled.Visibility" 
+                                          Color="Color.Info" 
+                                          Href="@($"/teachers/{context.Id}")" />
+                            <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                          Color="Color.Warning" 
+                                          Href="@($"/teachers/edit/{context.Id}")" />
+                            <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                          Color="Color.Error" 
+                                          OnClick="@(() => DeleteTeacher(context.Id))" />
+                        </MudButtonGroup>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            <MudText Class="mt-4 text-sm text-gray-600">
+                Showing @(filteredTeachers?.Count() ?? 0) of @(teachers?.Count ?? 0) teachers
+            </MudText>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<TeacherResponse>? teachers = new();
+    private IEnumerable<TeacherResponse> filteredTeachers => teachers?.Where(FilterTeachers) ?? new List<TeacherResponse>();
+    private string searchTerm = "";
+    private bool showCreateForm = false;
+    private CreateTeacherRequest newTeacher = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeachers();
+    }
+
+    private async Task LoadTeachers()
+    {
+        await Task.Delay(500); // Simulate loading
+        try
+        {
+            // TODO: Replace with actual API call
+            teachers = new List<TeacherResponse>
+            {
+                new TeacherResponse
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "Alice",
+                    LastName = "Johnson",
+                    Email = "alice.johnson@school.com",
+                    Phone = "555-0101",
+                    Department = "Mathematics"
+                },
+                new TeacherResponse
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "Bob",
+                    LastName = "Smith",
+                    Email = "bob.smith@school.com",
+                    Phone = "555-0102",
+                    Department = "Science"
+                },
+                new TeacherResponse
+                {
+                    Id = Guid.NewGuid(),
+                    FirstName = "Carol",
+                    LastName = "Davis",
+                    Email = "carol.davis@school.com",
+                    Phone = "555-0103",
+                    Department = "English"
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading teachers: {ex.Message}");
+        }
+    }
+
+    private bool FilterTeachers(TeacherResponse teacher)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+            return true;
+
+        return (teacher.FirstName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (teacher.LastName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (teacher.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+               (teacher.Department?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+
+    private void ShowCreateForm()
+    {
+        newTeacher = new CreateTeacherRequest();
+        showCreateForm = true;
+    }
+
+    private void CancelCreate()
+    {
+        showCreateForm = false;
+        newTeacher = new CreateTeacherRequest();
+    }
+
+    private void SaveTeacher()
+    {
+        if (teachers != null && !string.IsNullOrWhiteSpace(newTeacher.FirstName) && !string.IsNullOrWhiteSpace(newTeacher.LastName))
+        {
+            var teacher = new TeacherResponse
+            {
+                Id = Guid.NewGuid(),
+                FirstName = newTeacher.FirstName,
+                LastName = newTeacher.LastName,
+                Email = newTeacher.Email,
+                Phone = newTeacher.Phone,
+                Department = newTeacher.Department
+            };
+
+            teachers.Add(teacher);
+            CancelCreate();
+            StateHasChanged();
+        }
+    }
+
+    private void DeleteTeacher(Guid teacherId)
+    {
+        if (teachers != null)
+        {
+            teachers.RemoveAll(t => t.Id == teacherId);
+            StateHasChanged();
+        }
+    }
+}

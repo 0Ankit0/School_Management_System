@@ -1,0 +1,416 @@
+@page "/attendance"
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">Attendance Management</h2>
+                <button @onclick="ShowCreateForm" class="btn btn-primary">
+                    ➕ Mark Attendance
+                </button>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            @if (showCreateForm)
+            {
+                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">Mark Attendance</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Class</label>
+                            <select @bind="selectedClassForAttendance" @bind:event="onchange" @onchange="OnClassChanged" class="form-control">
+                                <option value="">Select a class</option>
+                                @foreach (var classInfo in availableClasses)
+                                {
+                                    <option value="@classInfo.Id">@classInfo.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                            <input type="date" @bind="attendanceDate" class="form-control" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Time Slot</label>
+                            <select @bind="selectedTimeSlot" class="form-control">
+                                <option value="Morning">Morning (8:00 AM - 12:00 PM)</option>
+                                <option value="Afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
+                                <option value="Evening">Evening (4:00 PM - 8:00 PM)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(selectedClassForAttendance) && studentsInClass.Any())
+                    {
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="text-md font-medium">Students in Class</h4>
+                                <div class="flex gap-2">
+                                    <button @onclick="MarkAllPresent" class="btn btn-sm btn-success">Mark All Present</button>
+                                    <button @onclick="MarkAllAbsent" class="btn btn-sm btn-secondary">Mark All Absent</button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                                @foreach (var student in studentsInClass)
+                                {
+                                    <div class="flex items-center justify-between p-3 border rounded-lg">
+                                        <span class="font-medium">@student.Name</span>
+                                        <div class="flex gap-2">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="attendance_@student.Id" value="Present" 
+                                                       @onchange="@(() => UpdateStudentAttendance(student.Id, "Present"))"
+                                                       checked="@(student.Status == "Present")" class="mr-1" />
+                                                <span class="text-green-600">Present</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="attendance_@student.Id" value="Absent" 
+                                                       @onchange="@(() => UpdateStudentAttendance(student.Id, "Absent"))"
+                                                       checked="@(student.Status == "Absent")" class="mr-1" />
+                                                <span class="text-red-600">Absent</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="attendance_@student.Id" value="Late" 
+                                                       @onchange="@(() => UpdateStudentAttendance(student.Id, "Late"))"
+                                                       checked="@(student.Status == "Late")" class="mr-1" />
+                                                <span class="text-yellow-600">Late</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div class="mt-4 flex gap-2">
+                        <button @onclick="SaveAttendance" class="btn btn-success" disabled="@(!studentsInClass.Any())">💾 Save Attendance</button>
+                        <button @onclick="CancelCreate" class="btn btn-secondary">❌ Cancel</button>
+                    </div>
+                </div>
+            }
+
+            @if (attendanceRecords == null)
+            {
+                <div class="text-center py-12">
+                    <div class="spinner"></div>
+                    <p class="mt-4">Loading attendance records...</p>
+                </div>
+            }
+            else if (!attendanceRecords.Any())
+            {
+                <div class="text-center py-12">
+                    <h3 class="text-lg font-semibold text-gray-600 mb-2">No Attendance Records Found</h3>
+                    <p class="text-gray-500 mb-4">Start by marking attendance for a class.</p>
+                    <button @onclick="ShowCreateForm" class="btn btn-primary">
+                        ➕ Mark First Attendance
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="mb-4 flex gap-4">
+                    <input type="text" @bind="searchTerm" @bind:event="oninput" 
+                           placeholder="Search attendance..." 
+                           class="form-control max-w-md" />
+                    <select @bind="selectedClassFilter" class="form-control max-w-xs">
+                        <option value="">All Classes</option>
+                        @foreach (var classInfo in availableClasses)
+                        {
+                            <option value="@classInfo.Name">@classInfo.Name</option>
+                        }
+                    </select>
+                    <select @bind="selectedStatusFilter" class="form-control max-w-xs">
+                        <option value="">All Statuses</option>
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                        <option value="Late">Late</option>
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Student</th>
+                                <th>Class</th>
+                                <th>Time Slot</th>
+                                <th>Status</th>
+                                <th>Marked By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in filteredAttendanceRecords)
+                            {
+                                <tr>
+                                    <td>@record.Date.ToString("MMM dd, yyyy")</td>
+                                    <td>@record.StudentName</td>
+                                    <td>@record.ClassName</td>
+                                    <td>@record.TimeSlot</td>
+                                    <td>
+                                        <span class="badge @GetStatusBadgeClass(record.Status)">
+                                            @record.Status
+                                        </span>
+                                    </td>
+                                    <td>@record.MarkedBy</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/attendance/@record.Id" class="btn btn-sm btn-info" title="View">👁️</a>
+                                            <button @onclick="(() => EditAttendance(record.Id))" class="btn btn-sm btn-warning" title="Edit">✏️</button>
+                                            <button @onclick="(() => DeleteAttendance(record.Id))" class="btn btn-sm btn-danger" title="Delete">🗑️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 text-sm text-gray-600">
+                    Showing @filteredAttendanceRecords.Count() of @attendanceRecords.Count() attendance records
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<AttendanceResponse>? attendanceRecords = new();
+    private IEnumerable<AttendanceResponse> filteredAttendanceRecords => attendanceRecords?.Where(FilterAttendance) ?? new List<AttendanceResponse>();
+    private string searchTerm = "";
+    private string selectedClassFilter = "";
+    private string selectedStatusFilter = "";
+    private bool showCreateForm = false;
+
+    private List<ClassInfo> availableClasses = new();
+    private List<StudentAttendanceInfo> studentsInClass = new();
+    private string selectedClassForAttendance = "";
+    private DateTime attendanceDate = DateTime.Today;
+    private string selectedTimeSlot = "Morning";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        await Task.Delay(500); // Simulate loading
+        try
+        {
+            // Load classes for dropdown
+            availableClasses = new List<ClassInfo>
+            {
+                new ClassInfo { Id = Guid.NewGuid(), Name = "Grade 9A - Mathematics" },
+                new ClassInfo { Id = Guid.NewGuid(), Name = "Grade 10B - Science" },
+                new ClassInfo { Id = Guid.NewGuid(), Name = "Grade 11A - English" },
+                new ClassInfo { Id = Guid.NewGuid(), Name = "Grade 12B - History" }
+            };
+
+            // TODO: Replace with actual API call
+            attendanceRecords = new List<AttendanceResponse>
+            {
+                new AttendanceResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Date = DateTime.Today,
+                    StudentName = "John Doe",
+                    ClassName = "Grade 9A - Mathematics",
+                    TimeSlot = "Morning",
+                    Status = "Present",
+                    MarkedBy = "Teacher Smith"
+                },
+                new AttendanceResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Date = DateTime.Today,
+                    StudentName = "Jane Smith",
+                    ClassName = "Grade 9A - Mathematics",
+                    TimeSlot = "Morning",
+                    Status = "Absent",
+                    MarkedBy = "Teacher Smith"
+                },
+                new AttendanceResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Date = DateTime.Today.AddDays(-1),
+                    StudentName = "Mike Johnson",
+                    ClassName = "Grade 10B - Science",
+                    TimeSlot = "Afternoon",
+                    Status = "Late",
+                    MarkedBy = "Teacher Brown"
+                }
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
+    }
+
+    private async Task OnClassChanged(ChangeEventArgs e)
+    {
+        selectedClassForAttendance = e.Value?.ToString() ?? "";
+        if (!string.IsNullOrEmpty(selectedClassForAttendance))
+        {
+            await LoadStudentsInClass();
+        }
+        else
+        {
+            studentsInClass.Clear();
+        }
+    }
+
+    private async Task LoadStudentsInClass()
+    {
+        await Task.Delay(300); // Simulate loading
+        
+        // TODO: Replace with actual API call to get students in the selected class
+        studentsInClass = new List<StudentAttendanceInfo>
+        {
+            new StudentAttendanceInfo { Id = Guid.NewGuid(), Name = "John Doe", Status = "" },
+            new StudentAttendanceInfo { Id = Guid.NewGuid(), Name = "Jane Smith", Status = "" },
+            new StudentAttendanceInfo { Id = Guid.NewGuid(), Name = "Mike Johnson", Status = "" },
+            new StudentAttendanceInfo { Id = Guid.NewGuid(), Name = "Sarah Wilson", Status = "" },
+            new StudentAttendanceInfo { Id = Guid.NewGuid(), Name = "Tom Brown", Status = "" }
+        };
+        
+        StateHasChanged();
+    }
+
+    private void UpdateStudentAttendance(Guid studentId, string status)
+    {
+        var student = studentsInClass.FirstOrDefault(s => s.Id == studentId);
+        if (student != null)
+        {
+            student.Status = status;
+        }
+    }
+
+    private void MarkAllPresent()
+    {
+        foreach (var student in studentsInClass)
+        {
+            student.Status = "Present";
+        }
+        StateHasChanged();
+    }
+
+    private void MarkAllAbsent()
+    {
+        foreach (var student in studentsInClass)
+        {
+            student.Status = "Absent";
+        }
+        StateHasChanged();
+    }
+
+    private bool FilterAttendance(AttendanceResponse record)
+    {
+        var matchesSearch = string.IsNullOrWhiteSpace(searchTerm) ||
+                           (record.StudentName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                           (record.ClassName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        var matchesClass = string.IsNullOrWhiteSpace(selectedClassFilter) ||
+                          (record.ClassName?.Equals(selectedClassFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        var matchesStatus = string.IsNullOrWhiteSpace(selectedStatusFilter) ||
+                           (record.Status?.Equals(selectedStatusFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+
+        return matchesSearch && matchesClass && matchesStatus;
+    }
+
+    private string GetStatusBadgeClass(string status)
+    {
+        return status?.ToLower() switch
+        {
+            "present" => "badge-success",
+            "absent" => "badge-danger",
+            "late" => "badge-warning",
+            _ => "badge-secondary"
+        };
+    }
+
+    private void ShowCreateForm()
+    {
+        selectedClassForAttendance = "";
+        attendanceDate = DateTime.Today;
+        selectedTimeSlot = "Morning";
+        studentsInClass.Clear();
+        showCreateForm = true;
+    }
+
+    private void CancelCreate()
+    {
+        showCreateForm = false;
+        selectedClassForAttendance = "";
+        studentsInClass.Clear();
+    }
+
+    private void SaveAttendance()
+    {
+        if (attendanceRecords != null && !string.IsNullOrEmpty(selectedClassForAttendance) && studentsInClass.Any())
+        {
+            var selectedClass = availableClasses.FirstOrDefault(c => c.Id.ToString() == selectedClassForAttendance);
+
+            foreach (var student in studentsInClass.Where(s => !string.IsNullOrEmpty(s.Status)))
+            {
+                var record = new AttendanceResponse
+                {
+                    Id = Guid.NewGuid(),
+                    Date = attendanceDate,
+                    StudentName = student.Name,
+                    ClassName = selectedClass?.Name ?? "Unknown Class",
+                    TimeSlot = selectedTimeSlot,
+                    Status = student.Status,
+                    MarkedBy = "Current User" // TODO: Get current user
+                };
+
+                attendanceRecords.Add(record);
+            }
+
+            CancelCreate();
+            StateHasChanged();
+        }
+    }
+
+    private void EditAttendance(Guid recordId)
+    {
+        // TODO: Implement edit functionality
+    }
+
+    private void DeleteAttendance(Guid recordId)
+    {
+        if (attendanceRecords != null)
+        {
+            attendanceRecords.RemoveAll(r => r.Id == recordId);
+            StateHasChanged();
+        }
+    }
+
+    // Simplified models
+    public class AttendanceResponse
+    {
+        public Guid Id { get; set; }
+        public DateTime Date { get; set; }
+        public string StudentName { get; set; } = "";
+        public string ClassName { get; set; } = "";
+        public string TimeSlot { get; set; } = "";
+        public string Status { get; set; } = "";
+        public string MarkedBy { get; set; } = "";
+    }
+
+    public class ClassInfo
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+    }
+
+    public class StudentAttendanceInfo
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = "";
+        public string Status { get; set; } = "";
+    }
+}

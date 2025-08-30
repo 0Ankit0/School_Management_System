@@ -1,9 +1,77 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 
-@Body
+<div class="min-h-screen bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="text-xl font-bold text-gray-900">SMS</a>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="/" class="nav-link">Dashboard</a>
+                        
+                        <!-- Academic Management -->
+                        <div class="dropdown">
+                            <button class="nav-link dropdown-toggle">Academic</button>
+                            <div class="dropdown-menu">
+                                <a href="/academic-years" class="dropdown-item">Academic Years</a>
+                                <a href="/courses" class="dropdown-item">Courses</a>
+                                <a href="/assignments" class="dropdown-item">Assignments</a>
+                                <a href="/grades" class="dropdown-item">Grades</a>
+                            </div>
+                        </div>
+                        
+                        <!-- People Management -->
+                        <div class="dropdown">
+                            <button class="nav-link dropdown-toggle">People</button>
+                            <div class="dropdown-menu">
+                                <a href="/students" class="dropdown-item">Students</a>
+                                <a href="/teachers" class="dropdown-item">Teachers</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Operations -->
+                        <div class="dropdown">
+                            <button class="nav-link dropdown-toggle">Operations</button>
+                            <div class="dropdown-menu">
+                                <a href="/attendance" class="dropdown-item">Attendance</a>
+                                <a href="/library" class="dropdown-item">Library</a>
+                                <a href="/billing" class="dropdown-item">Billing</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-700">Welcome, Admin</span>
+                </div>
+            </div>
+        </div>
+    </nav>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+    <!-- Mobile menu -->
+    <div class="sm:hidden bg-white border-b">
+        <div class="px-2 pt-2 pb-3 space-y-1">
+            <a href="/" class="mobile-nav-link">Dashboard</a>
+            <a href="/students" class="mobile-nav-link">Students</a>
+            <a href="/teachers" class="mobile-nav-link">Teachers</a>
+            <a href="/academic-years" class="mobile-nav-link">Academic Years</a>
+            <a href="/courses" class="mobile-nav-link">Courses</a>
+            <a href="/assignments" class="mobile-nav-link">Assignments</a>
+            <a href="/grades" class="mobile-nav-link">Grades</a>
+            <a href="/attendance" class="mobile-nav-link">Attendance</a>
+            <a href="/library" class="mobile-nav-link">Library</a>
+            <a href="/billing" class="mobile-nav-link">Billing</a>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        @Body
+    </main>
 </div>
+
+@code {
+    
+}

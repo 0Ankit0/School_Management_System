@@ -1,0 +1,8 @@
+@if (IsLoading)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+}
+
+@code {
+    [Parameter] public bool IsLoading { get; set; }
+}
