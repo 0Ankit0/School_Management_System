@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using SMS.Microservices.Billing.Data;
 using SMS.ServiceDefaults;
 using SMS.Microservices.Billing.MappingProfiles;
+using SMS.Microservices.Billing.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 
