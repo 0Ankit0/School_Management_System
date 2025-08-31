@@ -1,10 +1,18 @@
 using SMS.UI.Web.Components;
+using SMS.UI.Shared.Services;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+// Add MudBlazor services
+builder.Services.AddMudServices();
+
+// Add custom theme service
+builder.Services.AddScoped<ThemeService>();
 
 builder.Services.AddHttpClient("ApiGateway", client =>
 {
