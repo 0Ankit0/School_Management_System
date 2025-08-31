@@ -1,77 +1,228 @@
+@using Microsoft.AspNetCore.Components.Routing
+@using SMS.UI.Shared.Services
+@inject NavigationManager NavigationManager
+@inject ThemeService ThemeService
+@implements IDisposable
 @inherits LayoutComponentBase
 
-<div class="min-h-screen bg-gray-50">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        <a href="/" class="text-xl font-bold text-gray-900">SMS</a>
-                    </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="/" class="nav-link">Dashboard</a>
-                        
-                        <!-- Academic Management -->
-                        <div class="dropdown">
-                            <button class="nav-link dropdown-toggle">Academic</button>
-                            <div class="dropdown-menu">
-                                <a href="/academic-years" class="dropdown-item">Academic Years</a>
-                                <a href="/courses" class="dropdown-item">Courses</a>
-                                <a href="/assignments" class="dropdown-item">Assignments</a>
-                                <a href="/grades" class="dropdown-item">Grades</a>
-                            </div>
-                        </div>
-                        
-                        <!-- People Management -->
-                        <div class="dropdown">
-                            <button class="nav-link dropdown-toggle">People</button>
-                            <div class="dropdown-menu">
-                                <a href="/students" class="dropdown-item">Students</a>
-                                <a href="/teachers" class="dropdown-item">Teachers</a>
-                            </div>
-                        </div>
-                        
-                        <!-- Operations -->
-                        <div class="dropdown">
-                            <button class="nav-link dropdown-toggle">Operations</button>
-                            <div class="dropdown-menu">
-                                <a href="/attendance" class="dropdown-item">Attendance</a>
-                                <a href="/library" class="dropdown-item">Library</a>
-                                <a href="/billing" class="dropdown-item">Billing</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center">
-                    <span class="text-sm text-gray-700">Welcome, Admin</span>
-                </div>
+<MudThemeProvider Theme="@_currentTheme" IsDarkMode="@ThemeService.IsDarkMode" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <!-- App Bar for Top Navigation -->
+    <MudAppBar Elevation="1" Fixed="true" Color="Color.Primary">
+        <MudIconButton Icon="Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" Class="d-lg-none" />
+        <MudText Typo="Typo.h6" Class="ml-3">
+            <MudIcon Icon="Icons.Material.Filled.School" Class="mr-2" />
+            SMS - School Management
+        </MudText>
+        <MudSpacer />
+        
+        <!-- Desktop Navigation Menu -->
+        <div class="d-none d-lg-flex">
+            <MudButton Href="/" Color="Color.Inherit" StartIcon="Icons.Material.Filled.Dashboard">Dashboard</MudButton>
+            
+            <!-- Academic Menu -->
+            <MudMenu Icon="Icons.Material.Filled.MenuBook" Color="Color.Inherit" Label="Academic" AnchorOrigin="Origin.BottomLeft">
+                <MudMenuItem Href="/academic-years" Icon="Icons.Material.Filled.CalendarToday">Academic Years</MudMenuItem>
+                <MudMenuItem Href="/courses" Icon="Icons.Material.Filled.Class">Courses</MudMenuItem>
+                <MudMenuItem Href="/assignments" Icon="Icons.Material.Filled.Assignment">Assignments</MudMenuItem>
+                <MudMenuItem Href="/grades" Icon="Icons.Material.Filled.Grade">Grades</MudMenuItem>
+            </MudMenu>
+            
+            <!-- People Menu -->
+            <MudMenu Icon="Icons.Material.Filled.People" Color="Color.Inherit" Label="People" AnchorOrigin="Origin.BottomLeft">
+                <MudMenuItem Href="/students" Icon="Icons.Material.Filled.School">Students</MudMenuItem>
+                <MudMenuItem Href="/teachers" Icon="Icons.Material.Filled.Person">Teachers</MudMenuItem>
+            </MudMenu>
+            
+            <!-- Operations Menu -->
+            <MudMenu Icon="Icons.Material.Filled.Business" Color="Color.Inherit" Label="Operations" AnchorOrigin="Origin.BottomLeft">
+                <MudMenuItem Href="/attendance" Icon="Icons.Material.Filled.CheckCircle">Attendance</MudMenuItem>
+                <MudMenuItem Href="/library" Icon="Icons.Material.Filled.LibraryBooks">Library</MudMenuItem>
+                <MudMenuItem Href="/billing" Icon="Icons.Material.Filled.AttachMoney">Billing</MudMenuItem>
+                <MudMenuItem Href="/inventory" Icon="Icons.Material.Filled.Inventory">Inventory</MudMenuItem>
+            </MudMenu>
+        </div>
+        
+        <!-- Theme Toggle Button -->
+        <MudIconButton Icon="@(ThemeService.IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)" 
+                      Color="Color.Inherit" 
+                      OnClick="@ToggleTheme"
+                      Class="mr-2" />
+        
+        <!-- User Menu -->
+        <MudMenu Icon="Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+            <div class="px-4 py-2">
+                <MudText Typo="Typo.body2">Welcome, Admin</MudText>
             </div>
-        </div>
-    </nav>
+            <MudDivider />
+            <MudMenuItem Icon="Icons.Material.Filled.Person">Profile</MudMenuItem>
+            <MudMenuItem Icon="Icons.Material.Filled.Settings">Settings</MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="Icons.Material.Filled.Logout">Logout</MudMenuItem>
+        </MudMenu>
+    </MudAppBar>
 
-    <!-- Mobile menu -->
-    <div class="sm:hidden bg-white border-b">
-        <div class="px-2 pt-2 pb-3 space-y-1">
-            <a href="/" class="mobile-nav-link">Dashboard</a>
-            <a href="/students" class="mobile-nav-link">Students</a>
-            <a href="/teachers" class="mobile-nav-link">Teachers</a>
-            <a href="/academic-years" class="mobile-nav-link">Academic Years</a>
-            <a href="/courses" class="mobile-nav-link">Courses</a>
-            <a href="/assignments" class="mobile-nav-link">Assignments</a>
-            <a href="/grades" class="mobile-nav-link">Grades</a>
-            <a href="/attendance" class="mobile-nav-link">Attendance</a>
-            <a href="/library" class="mobile-nav-link">Library</a>
-            <a href="/billing" class="mobile-nav-link">Billing</a>
-        </div>
-    </div>
+    <!-- Mobile Drawer Navigation -->
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" Variant="@DrawerVariant.Temporary" ClipMode="DrawerClipMode.Always" Class="d-lg-none">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="Icons.Material.Filled.School" Class="mr-2" />
+                SMS Navigation
+            </MudText>
+        </MudDrawerHeader>
+        <MudNavMenu>
+            <MudNavLink Href="/" Icon="Icons.Material.Filled.Dashboard" OnClick="@(() => _drawerOpen = false)">Dashboard</MudNavLink>
+            
+            <MudNavGroup Title="Academic" Icon="Icons.Material.Filled.MenuBook" Expanded="false">
+                <MudNavLink Href="/academic-years" Icon="Icons.Material.Filled.CalendarToday" OnClick="@(() => _drawerOpen = false)">Academic Years</MudNavLink>
+                <MudNavLink Href="/courses" Icon="Icons.Material.Filled.Class" OnClick="@(() => _drawerOpen = false)">Courses</MudNavLink>
+                <MudNavLink Href="/assignments" Icon="Icons.Material.Filled.Assignment" OnClick="@(() => _drawerOpen = false)">Assignments</MudNavLink>
+                <MudNavLink Href="/grades" Icon="Icons.Material.Filled.Grade" OnClick="@(() => _drawerOpen = false)">Grades</MudNavLink>
+            </MudNavGroup>
+            
+            <MudNavGroup Title="People" Icon="Icons.Material.Filled.People" Expanded="false">
+                <MudNavLink Href="/students" Icon="Icons.Material.Filled.School" OnClick="@(() => _drawerOpen = false)">Students</MudNavLink>
+                <MudNavLink Href="/teachers" Icon="Icons.Material.Filled.Person" OnClick="@(() => _drawerOpen = false)">Teachers</MudNavLink>
+            </MudNavGroup>
+            
+            <MudNavGroup Title="Operations" Icon="Icons.Material.Filled.Business" Expanded="false">
+                <MudNavLink Href="/attendance" Icon="Icons.Material.Filled.CheckCircle" OnClick="@(() => _drawerOpen = false)">Attendance</MudNavLink>
+                <MudNavLink Href="/library" Icon="Icons.Material.Filled.LibraryBooks" OnClick="@(() => _drawerOpen = false)">Library</MudNavLink>
+                <MudNavLink Href="/billing" Icon="Icons.Material.Filled.AttachMoney" OnClick="@(() => _drawerOpen = false)">Billing</MudNavLink>
+                <MudNavLink Href="/inventory" Icon="Icons.Material.Filled.Inventory" OnClick="@(() => _drawerOpen = false)">Inventory</MudNavLink>
+            </MudNavGroup>
+            
+            <MudDivider Class="my-2" />
+            
+            <MudNavLink OnClick="@ToggleTheme" Icon="@(ThemeService.IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)">
+                @(ThemeService.IsDarkMode ? "Light Mode" : "Dark Mode")
+            </MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
 
-    <!-- Main content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- Main Content -->
+    <MudMainContent Class="pb-16 pb-lg-0">
         @Body
-    </main>
-</div>
+    </MudMainContent>
+
+    <!-- Mobile Bottom Navigation (Only visible on mobile) -->
+    <div class="d-lg-none fixed-bottom">
+        <MudPaper Class="pa-0" Style="border-radius: 16px 16px 0 0; background: white;" Elevation="8">
+            <div class="d-flex">
+                <MudButton Href="/" 
+                          Class="flex-fill d-flex flex-column pa-2" 
+                          Style="height: 60px; border-radius: 0;"
+                          Variant="Variant.Text"
+                          Color="@(GetCurrentPage() == "dashboard" ? Color.Primary : Color.Default)">
+                    <MudIcon Icon="Icons.Material.Filled.Dashboard" 
+                            Color="@(GetCurrentPage() == "dashboard" ? Color.Primary : Color.Default)" />
+                    <MudText Typo="Typo.caption" 
+                            Style="@(GetCurrentPage() == "dashboard" ? "color: var(--mud-palette-primary);" : "")">
+                        Dashboard
+                    </MudText>
+                </MudButton>
+
+                <MudButton Href="/students" 
+                          Class="flex-fill d-flex flex-column pa-2" 
+                          Style="height: 60px; border-radius: 0;"
+                          Variant="Variant.Text"
+                          Color="@(GetCurrentPage() == "students" ? Color.Primary : Color.Default)">
+                    <MudIcon Icon="Icons.Material.Filled.School" 
+                            Color="@(GetCurrentPage() == "students" ? Color.Primary : Color.Default)" />
+                    <MudText Typo="Typo.caption" 
+                            Style="@(GetCurrentPage() == "students" ? "color: var(--mud-palette-primary);" : "")">
+                        Students
+                    </MudText>
+                </MudButton>
+
+                <MudButton Href="/teachers" 
+                          Class="flex-fill d-flex flex-column pa-2" 
+                          Style="height: 60px; border-radius: 0;"
+                          Variant="Variant.Text"
+                          Color="@(GetCurrentPage() == "teachers" ? Color.Primary : Color.Default)">
+                    <MudIcon Icon="Icons.Material.Filled.Person" 
+                            Color="@(GetCurrentPage() == "teachers" ? Color.Primary : Color.Default)" />
+                    <MudText Typo="Typo.caption" 
+                            Style="@(GetCurrentPage() == "teachers" ? "color: var(--mud-palette-primary);" : "")">
+                        Teachers
+                    </MudText>
+                </MudButton>
+
+                <MudButton Href="/academic-years" 
+                          Class="flex-fill d-flex flex-column pa-2" 
+                          Style="height: 60px; border-radius: 0;"
+                          Variant="Variant.Text"
+                          Color="@(GetCurrentPage() == "academic" ? Color.Primary : Color.Default)">
+                    <MudIcon Icon="Icons.Material.Filled.MenuBook" 
+                            Color="@(GetCurrentPage() == "academic" ? Color.Primary : Color.Default)" />
+                    <MudText Typo="Typo.caption" 
+                            Style="@(GetCurrentPage() == "academic" ? "color: var(--mud-palette-primary);" : "")">
+                        Academic
+                    </MudText>
+                </MudButton>
+
+                <MudButton OnClick="DrawerToggle" 
+                          Class="flex-fill d-flex flex-column pa-2" 
+                          Style="height: 60px; border-radius: 0;"
+                          Variant="Variant.Text">
+                    <MudIcon Icon="Icons.Material.Filled.MoreHoriz" />
+                    <MudText Typo="Typo.caption">More</MudText>
+                </MudButton>
+                
+                <MudButton OnClick="@ToggleTheme" 
+                          Class="flex-fill d-flex flex-column pa-2" 
+                          Style="height: 60px; border-radius: 0;"
+                          Variant="Variant.Text">
+                    <MudIcon Icon="@(ThemeService.IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)" />
+                    <MudText Typo="Typo.caption">Theme</MudText>
+                </MudButton>
+            </div>
+        </MudPaper>
+    </div>
+</MudLayout>
 
 @code {
-    
+    private bool _drawerOpen = false;
+    private MudTheme _currentTheme = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ThemeService.InitializeAsync();
+        _currentTheme = ThemeService.GetCurrentTheme();
+        ThemeService.OnThemeChanged += HandleThemeChanged;
+    }
+
+    private void HandleThemeChanged()
+    {
+        _currentTheme = ThemeService.GetCurrentTheme();
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ToggleTheme()
+    {
+        await ThemeService.ToggleThemeAsync();
+    }
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private string GetCurrentPage()
+    {
+        var uri = NavigationManager.Uri;
+        if (uri.Contains("/students")) return "students";
+        if (uri.Contains("/teachers")) return "teachers";
+        if (uri.Contains("/academic") || uri.Contains("/courses") || uri.Contains("/assignments") || uri.Contains("/grades")) return "academic";
+        if (uri.EndsWith("/") || uri.Contains("dashboard")) return "dashboard";
+        return "dashboard";
+    }
+
+    public void Dispose()
+    {
+        ThemeService.OnThemeChanged -= HandleThemeChanged;
+    }
 }

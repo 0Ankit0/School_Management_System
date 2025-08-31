@@ -1,183 +1,293 @@
 @page "/assignments"
 
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-800">Assignments Management</h2>
-                <button @onclick="ShowCreateForm" class="btn btn-primary">
-                    ➕ Add Assignment
-                </button>
-            </div>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <MudPaper Class="pa-6" Elevation="3">
+        <div class="d-flex justify-space-between align-center mb-6">
+            <MudText Typo="Typo.h4" Class="font-weight-bold">Assignments Management</MudText>
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="Icons.Material.Filled.Add"
+                      OnClick="ShowCreateForm">
+                Add Assignment
+            </MudButton>
         </div>
         
-        <div class="card-body">
-            @if (showCreateForm)
-            {
-                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-4">Add New Assignment</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                            <input type="text" @bind="newAssignment.Title" class="form-control" placeholder="Math Homework #1" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Course</label>
-                            <select @bind="newAssignment.CourseId" class="form-control">
-                                <option value="">Select a course</option>
-                                @foreach (var course in availableCourses)
-                                {
-                                    <option value="@course.Id">@course.Name (@course.Code)</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                            <textarea @bind="newAssignment.Description" class="form-control" rows="4" placeholder="Assignment description and instructions..."></textarea>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                            <input type="date" @bind="newAssignment.DueDate" class="form-control" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Max Points</label>
-                            <input type="number" @bind="newAssignment.MaxPoints" class="form-control" placeholder="100" min="1" step="1" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                            <select @bind="newAssignment.Status" class="form-control">
-                                <option value="Draft">Draft</option>
-                                <option value="Published">Published</option>
-                                <option value="Closed">Closed</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                            <select @bind="newAssignment.Type" class="form-control">
-                                <option value="Homework">Homework</option>
-                                <option value="Quiz">Quiz</option>
-                                <option value="Test">Test</option>
-                                <option value="Project">Project</option>
-                                <option value="Essay">Essay</option>
-                                <option value="Lab">Lab Work</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex gap-2">
-                        <button @onclick="SaveAssignment" class="btn btn-success">💾 Save</button>
-                        <button @onclick="CancelCreate" class="btn btn-secondary">❌ Cancel</button>
-                    </div>
-                </div>
-            }
-
-            @if (assignments == null)
-            {
-                <div class="text-center py-12">
-                    <div class="spinner"></div>
-                    <p class="mt-4">Loading assignments...</p>
-                </div>
-            }
-            else if (!assignments.Any())
-            {
-                <div class="text-center py-12">
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">No Assignments Found</h3>
-                    <p class="text-gray-500 mb-4">Start by adding your first assignment to the system.</p>
-                    <button @onclick="ShowCreateForm" class="btn btn-primary">
-                        ➕ Add First Assignment
-                    </button>
-                </div>
-            }
-            else
-            {
-                <div class="mb-4 flex gap-4">
-                    <input type="text" @bind="searchTerm" @bind:event="oninput" 
-                           placeholder="Search assignments..." 
-                           class="form-control max-w-md" />
-                    <select @bind="selectedStatusFilter" class="form-control max-w-xs">
-                        <option value="">All Statuses</option>
-                        <option value="Draft">Draft</option>
-                        <option value="Published">Published</option>
-                        <option value="Closed">Closed</option>
-                    </select>
-                    <select @bind="selectedTypeFilter" class="form-control max-w-xs">
-                        <option value="">All Types</option>
-                        <option value="Homework">Homework</option>
-                        <option value="Quiz">Quiz</option>
-                        <option value="Test">Test</option>
-                        <option value="Project">Project</option>
-                        <option value="Essay">Essay</option>
-                        <option value="Lab">Lab Work</option>
-                    </select>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Course</th>
-                                <th>Type</th>
-                                <th>Due Date</th>
-                                <th>Max Points</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var assignment in filteredAssignments)
+        @if (showCreateForm)
+        {
+            <MudPaper Class="mb-6 pa-4" Elevation="1" Style="background-color: var(--mud-palette-grey-lighten5);">
+                <MudText Typo="Typo.h5" Class="mb-4">Add New Assignment</MudText>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="newAssignment.Title" 
+                                     Label="Title" 
+                                     Placeholder="Math Homework #1"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="string" @bind-Value="newAssignment.CourseId" 
+                                  Label="Course"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="string" Value="@("")">Select a course</MudSelectItem>
+                            @foreach (var course in availableCourses)
                             {
-                                <tr>
-                                    <td>
-                                        <div class="font-medium">@assignment.Title</div>
-                                        @if (!string.IsNullOrEmpty(assignment.Description) && assignment.Description.Length > 50)
-                                        {
-                                            <div class="text-sm text-gray-600">@assignment.Description.Substring(0, 50)...</div>
-                                        }
-                                        else if (!string.IsNullOrEmpty(assignment.Description))
-                                        {
-                                            <div class="text-sm text-gray-600">@assignment.Description</div>
-                                        }
-                                    </td>
-                                    <td>@assignment.CourseName</td>
-                                    <td>
-                                        <span class="badge @GetTypeBadgeClass(assignment.Type)">
-                                            @assignment.Type
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="@GetDueDateClass(assignment.DueDate)">
-                                            @assignment.DueDate.ToString("MMM dd, yyyy")
-                                        </div>
-                                    </td>
-                                    <td>@assignment.MaxPoints pts</td>
-                                    <td>
-                                        <span class="badge @GetStatusBadgeClass(assignment.Status)">
-                                            @assignment.Status
-                                        </span>
-                                    </td>
-                                    <td>@assignment.CreatedDate.ToString("MMM dd")</td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a href="/assignments/@assignment.Id" class="btn btn-sm btn-info" title="View">👁️</a>
-                                            <a href="/assignments/edit/@assignment.Id" class="btn btn-sm btn-warning" title="Edit">✏️</a>
-                                            <a href="/assignment-submissions/@assignment.Id" class="btn btn-sm btn-success" title="Submissions">📝</a>
-                                            <button @onclick="(() => DeleteAssignment(assignment.Id))" class="btn btn-sm btn-danger" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <MudSelectItem T="string" Value="@course.Id.ToString()">@course.Name (@course.Code)</MudSelectItem>
                             }
-                        </tbody>
-                    </table>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="newAssignment.Description" 
+                                     Label="Description" 
+                                     Placeholder="Assignment description and instructions..."
+                                     Lines="4"
+                                     Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudDatePicker @bind-Date="newAssignmentDueDate" 
+                                      Label="Due Date" 
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudNumericField @bind-Value="newAssignment.MaxPoints" 
+                                        Label="Max Points" 
+                                        Min="1"
+                                        Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="string" @bind-Value="newAssignment.Status" 
+                                  Label="Status"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="string" Value="@("Draft")">Draft</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Published")">Published</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Closed")">Closed</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="string" @bind-Value="newAssignment.Type" 
+                                  Label="Type"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="string" Value="@("Homework")">Homework</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Quiz")">Quiz</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Test")">Test</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Project")">Project</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Essay")">Essay</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Lab")">Lab Work</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+                <div class="mt-4 d-flex gap-2">
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Success" 
+                              StartIcon="Icons.Material.Filled.Save"
+                              OnClick="SaveAssignment">
+                        Save
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              Color="Color.Default"
+                              StartIcon="Icons.Material.Filled.Cancel"
+                              OnClick="CancelCreate">
+                        Cancel
+                    </MudButton>
                 </div>
+            </MudPaper>
+        }
 
-                <div class="mt-4 text-sm text-gray-600">
-                    Showing @filteredAssignments.Count() of @assignments.Count() assignments
-                </div>
-            }
-        </div>
-    </div>
-</div>
+        @if (assignments == null)
+        {
+            <div class="text-center py-12">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                <MudText Class="mt-4">Loading assignments...</MudText>
+            </div>
+        }
+        else if (!assignments.Any())
+        {
+            <div class="text-center py-12">
+                <MudText Typo="Typo.h5" Class="text-gray-600 mb-2">No Assignments Found</MudText>
+                <MudText Class="text-gray-500 mb-4">Start by adding your first assignment to the system.</MudText>
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          StartIcon="Icons.Material.Filled.Add"
+                          OnClick="ShowCreateForm">
+                    Add First Assignment
+                </MudButton>
+            </div>
+        }
+        else
+        {
+            <div class="mb-4 d-flex gap-4 flex-wrap">
+                <MudTextField @bind-Value="searchTerm" 
+                             @bind-Value:event="oninput"
+                             Label="Search assignments..." 
+                             Variant="Variant.Outlined"
+                             Adornment="Adornment.Start"
+                             AdornmentIcon="Icons.Material.Filled.Search"
+                             Class="flex-grow-1" />
+                <MudSelect T="string" @bind-Value="selectedStatusFilter" 
+                          Label="Filter by Status"
+                          Variant="Variant.Outlined"
+                          Class="min-width-200">
+                    <MudSelectItem T="string" Value="@("")">All Statuses</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Draft")">Draft</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Published")">Published</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Closed")">Closed</MudSelectItem>
+                </MudSelect>
+                <MudSelect T="string" @bind-Value="selectedTypeFilter" 
+                          Label="Filter by Type"
+                          Variant="Variant.Outlined"
+                          Class="min-width-200">
+                    <MudSelectItem T="string" Value="@("")">All Types</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Homework")">Homework</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Quiz")">Quiz</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Test")">Test</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Project")">Project</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Essay")">Essay</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("Lab")">Lab Work</MudSelectItem>
+                </MudSelect>
+            </div>
+
+            <!-- Desktop Table View -->
+            <div class="d-none d-md-block">
+                <MudTable Items="@filteredAssignments" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@(assignments == null)" LoadingProgressColor="Color.Info">
+                    <HeaderContent>
+                        <MudTh>Assignment</MudTh>
+                        <MudTh>Course</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Due Date</MudTh>
+                        <MudTh>Points</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Assignment">
+                            <div>
+                                <MudText Typo="Typo.body1" Class="font-weight-bold">@context.Title</MudText>
+                                @if (!string.IsNullOrEmpty(context.Description) && context.Description.Length > 50)
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description.Substring(0, 50)...</MudText>
+                                }
+                                else if (!string.IsNullOrEmpty(context.Description))
+                                {
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Description</MudText>
+                                }
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Course">@context.CourseName</MudTd>
+                        <MudTd DataLabel="Type">
+                            <MudChip T="string" Color="@GetTypeColor(context.Type)" Size="Size.Small">
+                                @context.Type
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Due Date">
+                            <MudText Typo="Typo.body2" Color="@GetDueDateColor(context.DueDate)">
+                                @context.DueDate.ToString("MMM dd, yyyy")
+                            </MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Points">@context.MaxPoints pts</MudTd>
+                        <MudTd DataLabel="Status">
+                            <MudChip T="string" Color="@GetStatusColor(context.Status)" Size="Size.Small">
+                                @context.Status
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Actions">
+                            <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                                <MudIconButton Icon="Icons.Material.Filled.Visibility" 
+                                              Color="Color.Info" 
+                                              Href="@($"/assignments/{context.Id}")" />
+                                <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                              Color="Color.Warning" 
+                                              Href="@($"/assignments/edit/{context.Id}")" />
+                                <MudIconButton Icon="Icons.Material.Filled.Assignment" 
+                                              Color="Color.Success" 
+                                              Href="@($"/assignment-submissions/{context.Id}")" />
+                                <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                              Color="Color.Error" 
+                                              OnClick="@(() => DeleteAssignment(context.Id))" />
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="d-block d-md-none">
+                <MudGrid>
+                    @foreach (var assignment in filteredAssignments)
+                    {
+                        <MudItem xs="12">
+                            <MudCard Elevation="3" Class="mb-3">
+                                <MudCardContent>
+                                    <div class="d-flex justify-space-between align-start mb-3">
+                                        <div class="flex-grow-1">
+                                            <MudText Typo="Typo.h6" Class="font-weight-bold">@assignment.Title</MudText>
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-2">@assignment.CourseName</MudText>
+                                        </div>
+                                        <MudChip T="string" Color="@GetStatusColor(assignment.Status)" Size="Size.Small">
+                                            @assignment.Status
+                                        </MudChip>
+                                    </div>
+                                    
+                                    @if (!string.IsNullOrEmpty(assignment.Description))
+                                    {
+                                        <MudText Typo="Typo.body2" Class="mb-3">
+                                            @(assignment.Description.Length > 100 ? assignment.Description.Substring(0, 100) + "..." : assignment.Description)
+                                        </MudText>
+                                    }
+                                    
+                                    <MudGrid>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Type</MudText>
+                                            <MudChip T="string" Color="@GetTypeColor(assignment.Type)" Size="Size.Small">@assignment.Type</MudChip>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Points</MudText>
+                                            <MudText Typo="Typo.body2">@assignment.MaxPoints pts</MudText>
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Due Date</MudText>
+                                            <MudText Typo="Typo.body2" Color="@GetDueDateColor(assignment.DueDate)">
+                                                @assignment.DueDate.ToString("MMM dd, yyyy")
+                                            </MudText>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudCardContent>
+                                
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Info" 
+                                              StartIcon="Icons.Material.Filled.Visibility"
+                                              Href="@($"/assignments/{assignment.Id}")">
+                                        View
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Warning" 
+                                              StartIcon="Icons.Material.Filled.Edit"
+                                              Href="@($"/assignments/edit/{assignment.Id}")">
+                                        Edit
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Success" 
+                                              StartIcon="Icons.Material.Filled.Assignment"
+                                              Href="@($"/assignment-submissions/{assignment.Id}")">
+                                        Submissions
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Error" 
+                                              StartIcon="Icons.Material.Filled.Delete"
+                                              OnClick="@(() => DeleteAssignment(assignment.Id))">
+                                        Delete
+                                    </MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </div>
+
+            <MudText Class="mt-4 text-sm text-gray-600">
+                Showing @filteredAssignments.Count() of @(assignments?.Count() ?? 0) assignments
+            </MudText>
+        }
+    </MudPaper>
+</MudContainer>
 
 @code {
     private List<AssignmentResponse>? assignments = new();
@@ -187,6 +297,7 @@
     private string selectedTypeFilter = "";
     private bool showCreateForm = false;
     private CreateAssignmentRequest newAssignment = new();
+    private DateTime? newAssignmentDueDate;
 
     private List<CourseInfo> availableCourses = new();
 
@@ -327,11 +438,11 @@
     {
         newAssignment = new CreateAssignmentRequest
         {
-            DueDate = DateTime.Now.AddDays(7),
             MaxPoints = 100,
             Status = "Draft",
             Type = "Homework"
         };
+        newAssignmentDueDate = DateTime.Now.AddDays(7);
         showCreateForm = true;
     }
 
@@ -339,11 +450,12 @@
     {
         showCreateForm = false;
         newAssignment = new CreateAssignmentRequest();
+        newAssignmentDueDate = null;
     }
 
     private void SaveAssignment()
     {
-        if (assignments != null && !string.IsNullOrWhiteSpace(newAssignment.Title) && !string.IsNullOrWhiteSpace(newAssignment.CourseId))
+        if (assignments != null && !string.IsNullOrWhiteSpace(newAssignment.Title) && !string.IsNullOrWhiteSpace(newAssignment.CourseId) && newAssignmentDueDate.HasValue)
         {
             var selectedCourse = availableCourses.FirstOrDefault(c => c.Id.ToString() == newAssignment.CourseId);
 
@@ -354,7 +466,7 @@
                 Description = newAssignment.Description,
                 CourseName = selectedCourse?.Name ?? "Unknown Course",
                 Type = newAssignment.Type,
-                DueDate = newAssignment.DueDate,
+                DueDate = newAssignmentDueDate.Value,
                 MaxPoints = newAssignment.MaxPoints,
                 Status = newAssignment.Status,
                 CreatedDate = DateTime.Now
@@ -373,6 +485,40 @@
             assignments.RemoveAll(a => a.Id == assignmentId);
             StateHasChanged();
         }
+    }
+
+    private Color GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "Published" => Color.Success,
+            "Draft" => Color.Warning,
+            "Closed" => Color.Error,
+            _ => Color.Default
+        };
+    }
+
+    private Color GetTypeColor(string type)
+    {
+        return type switch
+        {
+            "Test" => Color.Error,
+            "Quiz" => Color.Warning,
+            "Project" => Color.Info,
+            "Homework" => Color.Primary,
+            "Essay" => Color.Secondary,
+            "Lab" => Color.Success,
+            _ => Color.Default
+        };
+    }
+
+    private Color GetDueDateColor(DateTime dueDate)
+    {
+        var daysUntilDue = (dueDate.Date - DateTime.Now.Date).Days;
+        if (daysUntilDue < 0) return Color.Error;
+        if (daysUntilDue <= 1) return Color.Warning;
+        if (daysUntilDue <= 3) return Color.Info;
+        return Color.Default;
     }
 
     // Simplified models

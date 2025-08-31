@@ -1,136 +1,223 @@
 @page "/academic-years-simple"
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
-    <MudPaper Class="pa-6" Elevation="3">
-        <div class="flex justify-between items-center mb-6">
-            <MudText Typo="Typo.h4" Class="font-bold text-gray-800">Academic Years Management</MudText>
-            <MudButton Variant="Variant.Filled" 
-                      Color="Color.Primary" 
-                      StartIcon="Icons.Material.Filled.Add"
-                      OnClick="ShowCreateForm">
-                Add Academic Year
-            </MudButton>
-        </div>
-        
-        @if (showCreateForm)
-        {
-            <MudPaper Class="pa-4 mb-6" Style="background-color: #f9fafb;">
-                <MudText Typo="Typo.h6" Class="mb-4">Add New Academic Year</MudText>
-                <MudGrid>
-                    <MudItem xs="12" md="4">
-                        <MudTextField @bind-Value="newAcademicYear.Name" 
-                                     Label="Name" 
-                                     Placeholder="e.g., 2024-2025" 
-                                     Variant="Variant.Outlined" />
-                    </MudItem>
-                    <MudItem xs="12" md="4">
-                        <MudDatePicker @bind-Date="startDate" 
-                                      Label="Start Date" 
-                                      Variant="Variant.Outlined" />
-                    </MudItem>
-                    <MudItem xs="12" md="4">
-                        <MudDatePicker @bind-Date="endDate" 
-                                      Label="End Date" 
-                                      Variant="Variant.Outlined" />
-                    </MudItem>
-                </MudGrid>
-                <div class="mt-4">
+    <MudCard Elevation="4">
+        <MudCardHeader>
+            <CardHeaderContent>
+                <div class="d-flex justify-space-between align-center flex-wrap ga-2">
+                    <MudText Typo="Typo.h4" Class="d-flex align-center">
+                        <MudIcon Icon="Icons.Material.Filled.CalendarToday" Class="mr-2" />
+                        Academic Years Management
+                    </MudText>
                     <MudButton Variant="Variant.Filled" 
-                              Color="Color.Success" 
-                              StartIcon="Icons.Material.Filled.Save"
-                              OnClick="SaveAcademicYear"
-                              Class="mr-2">
-                        Save
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined" 
-                              Color="Color.Secondary" 
-                              StartIcon="Icons.Material.Filled.Cancel"
-                              OnClick="CancelCreate">
-                        Cancel
+                              Color="Color.Primary" 
+                              StartIcon="Icons.Material.Filled.Add"
+                              OnClick="ShowCreateForm"
+                              Size="Size.Medium">
+                        <span class="d-none d-sm-inline">Add Academic Year</span>
+                        <span class="d-sm-none">Add</span>
                     </MudButton>
                 </div>
-            </MudPaper>
-        }
+            </CardHeaderContent>
+        </MudCardHeader>
+        
+        <MudCardContent>
+            @if (showCreateForm)
+            {
+                <MudCard Class="mb-6" Elevation="2">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6" Color="Color.Primary">Add New Academic Year</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        <MudGrid>
+                            <MudItem xs="12" md="4">
+                                <MudTextField @bind-Value="newAcademicYear.Name" 
+                                             Label="Academic Year Name" 
+                                             Placeholder="e.g., 2024-2025" 
+                                             Variant="Variant.Outlined"
+                                             Required="true"
+                                             RequiredError="Academic year name is required" />
+                            </MudItem>
+                            <MudItem xs="12" md="4">
+                                <MudDatePicker @bind-Date="startDate" 
+                                              Label="Start Date" 
+                                              Variant="Variant.Outlined"
+                                              Required="true"
+                                              RequiredError="Start date is required" />
+                            </MudItem>
+                            <MudItem xs="12" md="4">
+                                <MudDatePicker @bind-Date="endDate" 
+                                              Label="End Date" 
+                                              Variant="Variant.Outlined"
+                                              Required="true"
+                                              RequiredError="End date is required" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Filled" 
+                                  Color="Color.Success" 
+                                  StartIcon="Icons.Material.Filled.Save"
+                                  OnClick="SaveAcademicYear"
+                                  Class="mr-2">
+                            Save
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" 
+                                  Color="Color.Secondary" 
+                                  StartIcon="Icons.Material.Filled.Cancel"
+                                  OnClick="CancelCreate">
+                            Cancel
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            }
 
-        @if (academicYears == null)
-        {
-            <div class="text-center py-12">
-                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
-                <MudText Class="mt-4">Loading academic years...</MudText>
-            </div>
-        }
-        else if (!academicYears.Any())
-        {
-            <div class="text-center py-12">
-                <MudText Typo="Typo.h6" Class="text-gray-600 mb-2">No Academic Years Found</MudText>
-                <MudText Class="text-gray-500 mb-4">Get started by creating your first academic year.</MudText>
-                <MudButton Variant="Variant.Filled" 
-                          Color="Color.Primary" 
-                          StartIcon="Icons.Material.Filled.Add"
-                          OnClick="ShowCreateForm">
-                    Add Academic Year
-                </MudButton>
-            </div>
-        }
-        else
-        {
-            <MudTable Items="academicYears" Dense="true" Hover="true" Striped="true">
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Start Date</MudTh>
-                    <MudTh>End Date</MudTh>
-                    <MudTh>Status</MudTh>
-                    <MudTh>Actions</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Name">
-                        <MudText Typo="Typo.body1" Class="font-medium">@context.Name</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Start Date">
-                        <MudText>@context.StartDate.ToString("MMM dd, yyyy")</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="End Date">
-                        <MudText>@context.EndDate.ToString("MMM dd, yyyy")</MudText>
-                    </MudTd>
-                    <MudTd DataLabel="Status">
-                        @if (context.IsActive)
-                        {
-                            <MudChip T="string" Color="Color.Success" Size="Size.Small">
-                                <MudIcon Icon="Icons.Material.Filled.CheckCircle" Size="Size.Small" />
-                                Active
-                            </MudChip>
-                        }
-                        else
-                        {
-                            <MudChip T="string" Color="Color.Default" Size="Size.Small">
-                                <MudIcon Icon="Icons.Material.Filled.Circle" Size="Size.Small" />
-                                Inactive
-                            </MudChip>
-                        }
-                    </MudTd>
-                    <MudTd DataLabel="Actions">
-                        <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
-                            <MudIconButton Icon="Icons.Material.Filled.Edit" 
-                                          Color="Color.Warning" 
+            @if (academicYears == null)
+            {
+                <div class="d-flex justify-center align-center pa-12">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+                    <MudText Class="ml-4" Typo="Typo.body1">Loading academic years...</MudText>
+                </div>
+            }
+            else if (!academicYears.Any())
+            {
+                <MudAlert Severity="Severity.Info" Class="ma-4">
+                    <div class="text-center pa-4">
+                        <MudIcon Icon="Icons.Material.Filled.CalendarToday" Style="font-size: 4rem;" Color="Color.Primary" Class="mb-4" />
+                        <MudText Typo="Typo.h6" Class="mb-2">No Academic Years Found</MudText>
+                        <MudText Class="mb-4">Get started by creating your first academic year to organize your school's schedule.</MudText>
+                        <MudButton Variant="Variant.Filled" 
+                                  Color="Color.Primary" 
+                                  StartIcon="Icons.Material.Filled.Add"
+                                  OnClick="ShowCreateForm">
+                            Create First Academic Year
+                        </MudButton>
+                    </div>
+                </MudAlert>
+            }
+            else
+            {
+                <!-- Desktop Table View -->
+                <div class="d-none d-md-block">
+                    <MudTable Items="academicYears" Dense="true" Hover="true" Striped="true" Elevation="0" Class="mud-table-dense">
+                        <HeaderContent>
+                            <MudTh><MudText Typo="Typo.subtitle2">Academic Year</MudText></MudTh>
+                            <MudTh><MudText Typo="Typo.subtitle2">Start Date</MudText></MudTh>
+                            <MudTh><MudText Typo="Typo.subtitle2">End Date</MudText></MudTh>
+                            <MudTh><MudText Typo="Typo.subtitle2">Status</MudText></MudTh>
+                            <MudTh><MudText Typo="Typo.subtitle2">Actions</MudText></MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd DataLabel="Name">
+                                <MudText Typo="Typo.body1" Class="font-weight-medium">@context.Name</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Start Date">
+                                <MudText>@context.StartDate.ToString("MMM dd, yyyy")</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="End Date">
+                                <MudText>@context.EndDate.ToString("MMM dd, yyyy")</MudText>
+                            </MudTd>
+                            <MudTd DataLabel="Status">
+                                @if (context.IsActive)
+                                {
+                                    <MudChip T="string" Color="Color.Success" Size="Size.Small" Icon="Icons.Material.Filled.CheckCircle">
+                                        Active
+                                    </MudChip>
+                                }
+                                else
+                                {
+                                    <MudChip T="string" Color="Color.Default" Size="Size.Small" Icon="Icons.Material.Filled.Circle">
+                                        Inactive
+                                    </MudChip>
+                                }
+                            </MudTd>
+                            <MudTd DataLabel="Actions">
+                                <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                                    <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                                  Color="Color.Primary" 
+                                                  Size="Size.Small"
+                                                  OnClick="(() => EditAcademicYear(context))" />
+                                    <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                                  Color="Color.Error" 
+                                                  Size="Size.Small"
+                                                  OnClick="(() => DeleteAcademicYear(context.Id))" />
+                                    @if (!context.IsActive)
+                                    {
+                                        <MudIconButton Icon="Icons.Material.Filled.PlayArrow" 
+                                                      Color="Color.Success" 
+                                                      Size="Size.Small"
+                                                      OnClick="(() => SetActive(context.Id))" />
+                                    }
+                                </MudButtonGroup>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="d-md-none">
+                    @foreach (var year in academicYears)
+                    {
+                        <MudCard Class="mb-3" Elevation="2">
+                            <MudCardContent>
+                                <div class="d-flex justify-space-between align-center mb-2">
+                                    <MudText Typo="Typo.h6" Class="font-weight-bold">@year.Name</MudText>
+                                    @if (year.IsActive)
+                                    {
+                                        <MudChip T="string" Color="Color.Success" Size="Size.Small" Icon="Icons.Material.Filled.CheckCircle">
+                                            Active
+                                        </MudChip>
+                                    }
+                                    else
+                                    {
+                                        <MudChip T="string" Color="Color.Default" Size="Size.Small" Icon="Icons.Material.Filled.Circle">
+                                            Inactive
+                                        </MudChip>
+                                    }
+                                </div>
+                                
+                                <MudGrid>
+                                    <MudItem xs="6">
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">Start Date</MudText>
+                                        <MudText Typo="Typo.body2">@year.StartDate.ToString("MMM dd, yyyy")</MudText>
+                                    </MudItem>
+                                    <MudItem xs="6">
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">End Date</MudText>
+                                        <MudText Typo="Typo.body2">@year.EndDate.ToString("MMM dd, yyyy")</MudText>
+                                    </MudItem>
+                                </MudGrid>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton StartIcon="Icons.Material.Filled.Edit" 
+                                          Color="Color.Primary" 
                                           Size="Size.Small"
-                                          OnClick="(() => EditAcademicYear(context))" />
-                            <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                          OnClick="(() => EditAcademicYear(year))">
+                                    Edit
+                                </MudButton>
+                                <MudButton StartIcon="Icons.Material.Filled.Delete" 
                                           Color="Color.Error" 
                                           Size="Size.Small"
-                                          OnClick="(() => DeleteAcademicYear(context.Id))" />
-                            @if (!context.IsActive)
-                            {
-                                <MudIconButton Icon="Icons.Material.Filled.PlayArrow" 
-                                              Color="Color.Info" 
+                                          OnClick="(() => DeleteAcademicYear(year.Id))">
+                                    Delete
+                                </MudButton>
+                                @if (!year.IsActive)
+                                {
+                                    <MudButton StartIcon="Icons.Material.Filled.PlayArrow" 
+                                              Color="Color.Success" 
                                               Size="Size.Small"
-                                              OnClick="(() => SetActive(context.Id))" />
-                            }
-                        </MudButtonGroup>
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
-        }
-    </MudPaper>
+                                              OnClick="(() => SetActive(year.Id))">
+                                        Activate
+                                    </MudButton>
+                                }
+                            </MudCardActions>
+                        </MudCard>
+                    }
+                </div>
+            }
+        </MudCardContent>
+    </MudCard>
 </MudContainer>
 
 @code {
@@ -187,7 +274,7 @@
         endDate = null;
     }
 
-    private async Task SaveAcademicYear()
+    private void SaveAcademicYear()
     {
         // Validate
         if (string.IsNullOrWhiteSpace(newAcademicYear.Name) || startDate == null || endDate == null)

@@ -1,155 +1,246 @@
 @page "/grades"
 
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-800">Grades Management</h2>
-                <button @onclick="ShowCreateForm" class="btn btn-primary">
-                    ➕ Add Grade
-                </button>
-            </div>
+<MudContainer Class="mt-4">
+    <MudPaper Elevation="3" Class="pa-6">
+        <div class="d-flex justify-space-between align-center mb-6">
+            <MudText Typo="Typo.h3" Color="Color.Primary">Grades Management</MudText>
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="Icons.Material.Filled.Add"
+                      OnClick="ShowCreateForm">
+                Add Grade
+            </MudButton>
         </div>
         
-        <div class="card-body">
-            @if (showCreateForm)
-            {
-                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-4">Add New Grade</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Student</label>
-                            <select @bind="newGrade.StudentId" class="form-control">
-                                <option value="">Select a student</option>
-                                @foreach (var student in availableStudents)
-                                {
-                                    <option value="@student.Id">@student.FirstName @student.LastName</option>
-                                }
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Course</label>
-                            <select @bind="newGrade.CourseId" class="form-control">
-                                <option value="">Select a course</option>
-                                @foreach (var course in availableCourses)
-                                {
-                                    <option value="@course.Id">@course.Name (@course.Code)</option>
-                                }
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Grade</label>
-                            <select @bind="newGrade.Grade" class="form-control">
-                                <option value="">Select grade</option>
-                                <option value="A+">A+ (97-100)</option>
-                                <option value="A">A (93-96)</option>
-                                <option value="A-">A- (90-92)</option>
-                                <option value="B+">B+ (87-89)</option>
-                                <option value="B">B (83-86)</option>
-                                <option value="B-">B- (80-82)</option>
-                                <option value="C+">C+ (77-79)</option>
-                                <option value="C">C (73-76)</option>
-                                <option value="C-">C- (70-72)</option>
-                                <option value="D">D (60-69)</option>
-                                <option value="F">F (0-59)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Points</label>
-                            <input type="number" @bind="newGrade.Points" class="form-control" placeholder="85" min="0" max="100" step="0.1" />
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Comments</label>
-                            <textarea @bind="newGrade.Comments" class="form-control" rows="3" placeholder="Optional comments about the grade..."></textarea>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex gap-2">
-                        <button @onclick="SaveGrade" class="btn btn-success">💾 Save</button>
-                        <button @onclick="CancelCreate" class="btn btn-secondary">❌ Cancel</button>
-                    </div>
-                </div>
-            }
-
-            @if (grades == null)
-            {
-                <div class="text-center py-12">
-                    <div class="spinner"></div>
-                    <p class="mt-4">Loading grades...</p>
-                </div>
-            }
-            else if (!grades.Any())
-            {
-                <div class="text-center py-12">
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">No Grades Found</h3>
-                    <p class="text-gray-500 mb-4">Start by adding your first grade to the system.</p>
-                    <button @onclick="ShowCreateForm" class="btn btn-primary">
-                        ➕ Add First Grade
-                    </button>
-                </div>
-            }
-            else
-            {
-                <div class="mb-4 flex gap-4">
-                    <input type="text" @bind="searchTerm" @bind:event="oninput" 
-                           placeholder="Search grades..." 
-                           class="form-control max-w-md" />
-                    <select @bind="selectedGradeFilter" class="form-control max-w-xs">
-                        <option value="">All Grades</option>
-                        <option value="A">A Grades</option>
-                        <option value="B">B Grades</option>
-                        <option value="C">C Grades</option>
-                        <option value="D">D Grades</option>
-                        <option value="F">F Grades</option>
-                    </select>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Student</th>
-                                <th>Course</th>
-                                <th>Grade</th>
-                                <th>Points</th>
-                                <th>Date</th>
-                                <th>Comments</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var grade in filteredGrades)
+        @if (showCreateForm)
+        {
+            <MudPaper Elevation="2" Class="pa-4 mb-6" Style="background-color: var(--mud-palette-grey-lighten5);">
+                <MudText Typo="Typo.h5" Class="mb-4">Add New Grade</MudText>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="Guid?" @bind-Value="newGrade.StudentId" 
+                                  Label="Student"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="Guid?" Value="null">Select a student</MudSelectItem>
+                            @foreach (var student in availableStudents)
                             {
-                                <tr>
-                                    <td>@grade.StudentName</td>
-                                    <td>@grade.CourseName</td>
-                                    <td>
-                                        <span class="badge @GetGradeBadgeClass(grade.Grade)">
-                                            @grade.Grade
-                                        </span>
-                                    </td>
-                                    <td>@grade.Points.ToString("F1")%</td>
-                                    <td>@grade.GradedDate.ToString("yyyy-MM-dd")</td>
-                                    <td>@(string.IsNullOrEmpty(grade.Comments) ? "-" : grade.Comments)</td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a href="/grades/@grade.Id" class="btn btn-sm btn-info" title="View">👁️</a>
-                                            <a href="/grades/edit/@grade.Id" class="btn btn-sm btn-warning" title="Edit">✏️</a>
-                                            <button @onclick="(() => DeleteGrade(grade.Id))" class="btn btn-sm btn-danger" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <MudSelectItem T="Guid?" Value="student.Id">@student.FirstName @student.LastName</MudSelectItem>
                             }
-                        </tbody>
-                    </table>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="Guid?" @bind-Value="newGrade.CourseId" 
+                                  Label="Course"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="Guid?" Value="null">Select a course</MudSelectItem>
+                            @foreach (var course in availableCourses)
+                            {
+                                <MudSelectItem T="Guid?" Value="course.Id">@course.Name (@course.Code)</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="string" @bind-Value="newGrade.Grade" 
+                                  Label="Grade"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="string" Value="@("A+")">A+ (97-100)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("A")">A (93-96)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("A-")">A- (90-92)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("B+")">B+ (87-89)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("B")">B (83-86)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("B-")">B- (80-82)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("C+")">C+ (77-79)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("C")">C (73-76)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("C-")">C- (70-72)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("D")">D (60-69)</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("F")">F (0-59)</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudNumericField T="decimal" @bind-Value="newGrade.Points" 
+                                        Label="Points" 
+                                        Variant="Variant.Outlined"
+                                        Min="0"
+                                        Max="100"
+                                        Step="0.1m"
+                                        Format="N1" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="newGrade.Comments" 
+                                     Label="Comments"
+                                     Variant="Variant.Outlined"
+                                     Lines="3"
+                                     Placeholder="Optional comments about the grade..." />
+                    </MudItem>
+                </MudGrid>
+                <div class="d-flex gap-2 mt-4">
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Success" 
+                              StartIcon="Icons.Material.Filled.Save"
+                              OnClick="SaveGrade">
+                        Save
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              StartIcon="Icons.Material.Filled.Cancel"
+                              OnClick="CancelCreate">
+                        Cancel
+                    </MudButton>
                 </div>
+            </MudPaper>
+        }
 
-                <div class="mt-4 text-sm text-gray-600">
-                    Showing @filteredGrades.Count() of @grades.Count() grades
-                </div>
-            }
-        </div>
-    </div>
-</div>
+        @if (grades == null)
+        {
+            <div class="text-center py-12">
+                <MudProgressCircular Indeterminate="true" />
+                <MudText Class="mt-4">Loading grades...</MudText>
+            </div>
+        }
+        else if (!grades.Any())
+        {
+            <div class="text-center py-12">
+                <MudText Typo="Typo.h5" Class="text-gray-600 mb-2">No Grades Found</MudText>
+                <MudText Class="text-gray-500 mb-4">Start by adding your first grade to the system.</MudText>
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          StartIcon="Icons.Material.Filled.Add"
+                          OnClick="ShowCreateForm">
+                    Add First Grade
+                </MudButton>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex gap-4 flex-wrap mb-4">
+                <MudTextField @bind-Value="searchTerm" 
+                             @bind-Value:event="oninput"
+                             Label="Search grades..." 
+                             Variant="Variant.Outlined"
+                             Adornment="Adornment.Start"
+                             AdornmentIcon="Icons.Material.Filled.Search"
+                             Class="flex-grow-1" />
+                <MudSelect T="string" @bind-Value="selectedGradeFilter" 
+                          Label="Filter by Grade"
+                          Variant="Variant.Outlined"
+                          Class="min-width-200">
+                    <MudSelectItem T="string" Value="@("")">All Grades</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("A")">A Grades</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("B")">B Grades</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("C")">C Grades</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("D")">D Grades</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("F")">F Grades</MudSelectItem>
+                </MudSelect>
+            </div>
+
+            <!-- Desktop Table View -->
+            <div class="d-none d-md-block">
+                <MudTable Items="@filteredGrades" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@(grades == null)" LoadingProgressColor="Color.Info">
+                    <HeaderContent>
+                        <MudTh>Student</MudTh>
+                        <MudTh>Course</MudTh>
+                        <MudTh>Grade</MudTh>
+                        <MudTh>Points</MudTh>
+                        <MudTh>Date</MudTh>
+                        <MudTh>Comments</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Student">@context.StudentName</MudTd>
+                        <MudTd DataLabel="Course">@context.CourseName</MudTd>
+                        <MudTd DataLabel="Grade">
+                            <MudChip T="string" Color="@GetGradeColor(context.Grade)" Size="Size.Small">
+                                @context.Grade
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Points">@context.Points.ToString("F1")%</MudTd>
+                        <MudTd DataLabel="Date">@context.GradedDate.ToString("yyyy-MM-dd")</MudTd>
+                        <MudTd DataLabel="Comments">@(string.IsNullOrEmpty(context.Comments) ? "-" : context.Comments)</MudTd>
+                        <MudTd DataLabel="Actions">
+                            <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                                <MudIconButton Icon="Icons.Material.Filled.Visibility" 
+                                              Color="Color.Info" 
+                                              Href="@($"/grades/{context.Id}")" />
+                                <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                              Color="Color.Warning" 
+                                              Href="@($"/grades/edit/{context.Id}")" />
+                                <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                              Color="Color.Error" 
+                                              OnClick="@(() => DeleteGrade(context.Id))" />
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="d-block d-md-none">
+                <MudGrid>
+                    @foreach (var grade in filteredGrades)
+                    {
+                        <MudItem xs="12">
+                            <MudCard Elevation="3" Class="mb-3">
+                                <MudCardContent>
+                                    <div class="d-flex justify-space-between align-start mb-3">
+                                        <div class="flex-grow-1">
+                                            <MudText Typo="Typo.h6" Class="font-weight-bold">@grade.StudentName</MudText>
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary">@grade.CourseName</MudText>
+                                        </div>
+                                        <MudChip T="string" Color="@GetGradeColor(grade.Grade)" Size="Size.Small">
+                                            @grade.Grade
+                                        </MudChip>
+                                    </div>
+                                    
+                                    <MudGrid>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Points</MudText>
+                                            <MudText Typo="Typo.h6" Class="font-weight-bold">@grade.Points.ToString("F1")%</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Date</MudText>
+                                            <MudText Typo="Typo.body2">@grade.GradedDate.ToString("yyyy-MM-dd")</MudText>
+                                        </MudItem>
+                                        @if (!string.IsNullOrEmpty(grade.Comments))
+                                        {
+                                            <MudItem xs="12">
+                                                <MudText Typo="Typo.caption" Color="Color.Secondary">Comments</MudText>
+                                                <MudText Typo="Typo.body2">@grade.Comments</MudText>
+                                            </MudItem>
+                                        }
+                                    </MudGrid>
+                                </MudCardContent>
+                                
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Info" 
+                                              StartIcon="Icons.Material.Filled.Visibility"
+                                              Href="@($"/grades/{grade.Id}")">
+                                        View
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Warning" 
+                                              StartIcon="Icons.Material.Filled.Edit"
+                                              Href="@($"/grades/edit/{grade.Id}")">
+                                        Edit
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Error" 
+                                              StartIcon="Icons.Material.Filled.Delete"
+                                              OnClick="@(() => DeleteGrade(grade.Id))">
+                                        Delete
+                                    </MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </div>
+
+            <MudText Class="mt-4 text-sm text-gray-600">
+                Showing @filteredGrades.Count() of @(grades?.Count ?? 0) grades
+            </MudText>
+        }
+    </MudPaper>
+</MudContainer>
 
 @code {
     private List<GradeResponse>? grades = new();
@@ -242,16 +333,16 @@
         return matchesSearch && matchesGradeFilter;
     }
 
-    private string GetGradeBadgeClass(string grade)
+    private Color GetGradeColor(string grade)
     {
         return grade?.ToUpper() switch
         {
-            "A+" or "A" or "A-" => "badge-success",
-            "B+" or "B" or "B-" => "badge-primary",
-            "C+" or "C" or "C-" => "badge-warning",
-            "D" => "badge-secondary",
-            "F" => "badge-danger",
-            _ => "badge-secondary"
+            "A+" or "A" or "A-" => Color.Success,
+            "B+" or "B" or "B-" => Color.Primary,
+            "C+" or "C" or "C-" => Color.Warning,
+            "D" => Color.Default,
+            "F" => Color.Error,
+            _ => Color.Default
         };
     }
 
@@ -269,10 +360,10 @@
 
     private void SaveGrade()
     {
-        if (grades != null && !string.IsNullOrWhiteSpace(newGrade.StudentId) && !string.IsNullOrWhiteSpace(newGrade.CourseId) && !string.IsNullOrWhiteSpace(newGrade.Grade))
+        if (grades != null && newGrade.StudentId.HasValue && newGrade.CourseId.HasValue && !string.IsNullOrWhiteSpace(newGrade.Grade))
         {
-            var selectedStudent = availableStudents.FirstOrDefault(s => s.Id.ToString() == newGrade.StudentId);
-            var selectedCourse = availableCourses.FirstOrDefault(c => c.Id.ToString() == newGrade.CourseId);
+            var selectedStudent = availableStudents.FirstOrDefault(s => s.Id == newGrade.StudentId.Value);
+            var selectedCourse = availableCourses.FirstOrDefault(c => c.Id == newGrade.CourseId.Value);
 
             var grade = new GradeResponse
             {
@@ -303,8 +394,8 @@
     // Simplified models
     public class CreateGradeRequest
     {
-        public string StudentId { get; set; } = "";
-        public string CourseId { get; set; } = "";
+        public Guid? StudentId { get; set; }
+        public Guid? CourseId { get; set; }
         public string Grade { get; set; } = "";
         public decimal Points { get; set; }
         public string Comments { get; set; } = "";

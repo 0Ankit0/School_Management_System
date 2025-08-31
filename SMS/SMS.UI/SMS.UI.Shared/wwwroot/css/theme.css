@@ -1,0 +1,174 @@
+/* Theme-aware styles for both light and dark modes */
+
+/* Base layout adjustments */
+.mud-layout {
+    min-height: 100vh;
+}
+
+/* Ensure proper contrast for text in both themes */
+.mud-theme-light {
+    --mud-palette-text-primary: rgba(0, 0, 0, 0.87);
+    --mud-palette-text-secondary: rgba(0, 0, 0, 0.60);
+    --mud-palette-background-default: #f5f5f5;
+    --mud-palette-surface: #ffffff;
+}
+
+.mud-theme-dark {
+    --mud-palette-text-primary: rgba(255, 255, 255, 0.87);
+    --mud-palette-text-secondary: rgba(255, 255, 255, 0.60);
+    --mud-palette-background-default: #32333d;
+    --mud-palette-surface: #383838;
+}
+
+/* Mobile bottom navigation styling */
+.fixed-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+}
+
+/* Ensure mobile bottom nav adapts to theme */
+[data-theme="dark"] .fixed-bottom .mud-paper {
+    background-color: var(--mud-palette-surface) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="light"] .fixed-bottom .mud-paper {
+    background-color: var(--mud-palette-surface) !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Card and surface styling for theme consistency */
+.mud-card {
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+/* Table styling for better theme support */
+.mud-table {
+    background-color: var(--mud-palette-surface);
+}
+
+.mud-table-head {
+    background-color: var(--mud-palette-background-default);
+}
+
+/* Form controls theme consistency */
+.mud-input-root {
+    background-color: transparent;
+}
+
+.mud-input-root.mud-input-filled::before {
+    background-color: var(--mud-palette-action-hover);
+}
+
+/* Button theme consistency */
+.mud-button-root {
+    transition: all 0.3s ease;
+}
+
+/* Dialog and modal theme consistency */
+.mud-dialog {
+    background-color: var(--mud-palette-surface);
+    color: var(--mud-palette-text-primary);
+}
+
+/* Ensure proper scrollbar styling in dark mode */
+.mud-theme-dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.mud-theme-dark ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.mud-theme-dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.mud-theme-dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Light mode scrollbar */
+.mud-theme-light ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.mud-theme-light ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.mud-theme-light ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.mud-theme-light ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+    .mud-main-content {
+        padding-bottom: 76px; /* Account for mobile bottom navigation */
+    }
+}
+
+/* Theme toggle button styling */
+.theme-toggle-btn {
+    transition: transform 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Custom animations for theme switching */
+.theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Ensure proper elevation shadows in both themes */
+.mud-elevation-1 {
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+}
+
+.mud-theme-dark .mud-elevation-1 {
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.4), 0px 1px 1px 0px rgba(0,0,0,0.28), 0px 1px 3px 0px rgba(0,0,0,0.24);
+}
+
+/* Navigation highlight for current page */
+.nav-active {
+    background-color: rgba(var(--mud-palette-primary-rgb), 0.12) !important;
+    color: var(--mud-palette-primary) !important;
+}
+
+/* Loading and skeleton styles */
+.mud-skeleton {
+    background-color: var(--mud-palette-action-hover);
+}
+
+.mud-theme-dark .mud-skeleton {
+    background-color: rgba(255, 255, 255, 0.11);
+}
+
+/* Snackbar theme consistency */
+.mud-snackbar {
+    background-color: var(--mud-palette-surface);
+    color: var(--mud-palette-text-primary);
+}
+
+/* Chips and badges theme consistency */
+.mud-chip {
+    background-color: var(--mud-palette-action-selected);
+    color: var(--mud-palette-text-primary);
+}
+
+.mud-theme-dark .mud-chip {
+    background-color: rgba(255, 255, 255, 0.08);
+}

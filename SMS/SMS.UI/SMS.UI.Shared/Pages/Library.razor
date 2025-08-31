@@ -247,7 +247,7 @@
             </MudTable>
 
             <MudText Class="mt-4 text-sm text-gray-600">
-                Showing @filteredBooks.Count() of @books.Count() books
+                Showing @(filteredBooks?.Count() ?? 0) of @(books?.Count() ?? 0) books
             </MudText>
         }
     </MudPaper>

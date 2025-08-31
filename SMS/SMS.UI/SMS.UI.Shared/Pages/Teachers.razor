@@ -98,34 +98,107 @@
                              Class="max-w-md" />
             </div>
 
-            <MudTable Items="@filteredTeachers" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@(teachers == null)" LoadingProgressColor="Color.Info">
-                <HeaderContent>
-                    <MudTh>Name</MudTh>
-                    <MudTh>Email</MudTh>
-                    <MudTh>Phone</MudTh>
-                    <MudTh>Department</MudTh>
-                    <MudTh>Actions</MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Name">@context.FirstName @context.LastName</MudTd>
-                    <MudTd DataLabel="Email">@context.Email</MudTd>
-                    <MudTd DataLabel="Phone">@context.Phone</MudTd>
-                    <MudTd DataLabel="Department">@context.Department</MudTd>
-                    <MudTd DataLabel="Actions">
-                        <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
-                            <MudIconButton Icon="Icons.Material.Filled.Visibility" 
-                                          Color="Color.Info" 
-                                          Href="@($"/teachers/{context.Id}")" />
-                            <MudIconButton Icon="Icons.Material.Filled.Edit" 
-                                          Color="Color.Warning" 
-                                          Href="@($"/teachers/edit/{context.Id}")" />
-                            <MudIconButton Icon="Icons.Material.Filled.Delete" 
-                                          Color="Color.Error" 
-                                          OnClick="@(() => DeleteTeacher(context.Id))" />
-                        </MudButtonGroup>
-                    </MudTd>
-                </RowTemplate>
-            </MudTable>
+            <!-- Desktop Table View -->
+            <div class="d-none d-md-block">
+                <MudTable Items="@filteredTeachers" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@(teachers == null)" LoadingProgressColor="Color.Info">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Email</MudTh>
+                        <MudTh>Phone</MudTh>
+                        <MudTh>Department</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">
+                            <div class="d-flex align-center">
+                                <MudAvatar Color="Color.Primary" Class="mr-3">
+                                    @context.FirstName.FirstOrDefault()@context.LastName.FirstOrDefault()
+                                </MudAvatar>
+                                <div>
+                                    <MudText Typo="Typo.body1">@context.FirstName @context.LastName</MudText>
+                                </div>
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Email">@context.Email</MudTd>
+                        <MudTd DataLabel="Phone">@context.Phone</MudTd>
+                        <MudTd DataLabel="Department">
+                            <MudChip T="string" Color="Color.Primary" Size="Size.Small">@context.Department</MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Actions">
+                            <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                                <MudIconButton Icon="Icons.Material.Filled.Visibility" 
+                                              Color="Color.Info" 
+                                              Href="@($"/teachers/{context.Id}")" />
+                                <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                              Color="Color.Warning" 
+                                              Href="@($"/teachers/edit/{context.Id}")" />
+                                <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                              Color="Color.Error" 
+                                              OnClick="@(() => DeleteTeacher(context.Id))" />
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="d-block d-md-none">
+                <MudGrid>
+                    @foreach (var teacher in filteredTeachers)
+                    {
+                        <MudItem xs="12">
+                            <MudCard Elevation="3" Class="mb-3">
+                                <MudCardContent>
+                                    <div class="d-flex align-center mb-3">
+                                        <MudAvatar Color="Color.Primary" Size="Size.Large" Class="mr-3">
+                                            @teacher.FirstName.FirstOrDefault()@teacher.LastName.FirstOrDefault()
+                                        </MudAvatar>
+                                        <div class="flex-grow-1">
+                                            <MudText Typo="Typo.h6">@teacher.FirstName @teacher.LastName</MudText>
+                                            <MudChip T="string" Color="Color.Primary" Size="Size.Small">@teacher.Department</MudChip>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-2">
+                                        <MudText Typo="Typo.body2" Class="d-flex align-center">
+                                            <MudIcon Icon="Icons.Material.Filled.Email" Size="Size.Small" Class="mr-2" />
+                                            @teacher.Email
+                                        </MudText>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <MudText Typo="Typo.body2" Class="d-flex align-center">
+                                            <MudIcon Icon="Icons.Material.Filled.Phone" Size="Size.Small" Class="mr-2" />
+                                            @teacher.Phone
+                                        </MudText>
+                                    </div>
+                                </MudCardContent>
+                                
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Info" 
+                                              StartIcon="Icons.Material.Filled.Visibility"
+                                              Href="@($"/teachers/{teacher.Id}")">
+                                        View
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Warning" 
+                                              StartIcon="Icons.Material.Filled.Edit"
+                                              Href="@($"/teachers/edit/{teacher.Id}")">
+                                        Edit
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Error" 
+                                              StartIcon="Icons.Material.Filled.Delete"
+                                              OnClick="@(() => DeleteTeacher(teacher.Id))">
+                                        Delete
+                                    </MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </div>
 
             <MudText Class="mt-4 text-sm text-gray-600">
                 Showing @(filteredTeachers?.Count() ?? 0) of @(teachers?.Count ?? 0) teachers

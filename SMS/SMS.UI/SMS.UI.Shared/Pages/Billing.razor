@@ -1,210 +1,334 @@
 @page "/billing"
 
-<div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-gray-800">Billing Management</h2>
-                <button @onclick="ShowCreateForm" class="btn btn-primary">
-                    ➕ Create Invoice
-                </button>
-            </div>
+<MudContainer Class="mt-4">
+    <MudPaper Elevation="3" Class="pa-6">
+        <div class="d-flex justify-space-between align-center mb-6">
+            <MudText Typo="Typo.h3" Color="Color.Primary">Billing Management</MudText>
+            <MudButton Variant="Variant.Filled" 
+                      Color="Color.Primary" 
+                      StartIcon="Icons.Material.Filled.Add"
+                      OnClick="ShowCreateForm">
+                Create Invoice
+            </MudButton>
         </div>
         
-        <div class="card-body">
-            @if (showCreateForm)
-            {
-                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-4">Create New Invoice</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Student</label>
-                            <select @bind="newInvoice.StudentId" class="form-control">
-                                <option value="">Select a student</option>
-                                @foreach (var student in availableStudents)
-                                {
-                                    <option value="@student.Id">@student.Name (@student.StudentId)</option>
-                                }
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                            <select @bind="newInvoice.Type" class="form-control">
-                                <option value="Tuition">Tuition Fee</option>
-                                <option value="Library">Library Fee</option>
-                                <option value="Laboratory">Laboratory Fee</option>
-                                <option value="Sports">Sports Fee</option>
-                                <option value="Transportation">Transportation Fee</option>
-                                <option value="Examination">Examination Fee</option>
-                                <option value="Miscellaneous">Miscellaneous</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Academic Year</label>
-                            <select @bind="newInvoice.AcademicYear" class="form-control">
-                                <option value="">Select academic year</option>
-                                @foreach (var year in availableAcademicYears)
-                                {
-                                    <option value="@year">@year</option>
-                                }
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Term</label>
-                            <select @bind="newInvoice.Term" class="form-control">
-                                <option value="Fall">Fall Term</option>
-                                <option value="Spring">Spring Term</option>
-                                <option value="Summer">Summer Term</option>
-                                <option value="Annual">Annual</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Amount ($)</label>
-                            <input type="number" @bind="newInvoice.Amount" class="form-control" placeholder="1000.00" min="0" step="0.01" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
-                            <input type="date" @bind="newInvoice.DueDate" class="form-control" />
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                            <textarea @bind="newInvoice.Description" class="form-control" rows="3" placeholder="Invoice description..."></textarea>
-                        </div>
-                    </div>
-                    <div class="mt-4 flex gap-2">
-                        <button @onclick="SaveInvoice" class="btn btn-success">💾 Create Invoice</button>
-                        <button @onclick="CancelCreate" class="btn btn-secondary">❌ Cancel</button>
-                    </div>
-                </div>
-            }
-
-            @if (invoices == null)
-            {
-                <div class="text-center py-12">
-                    <div class="spinner"></div>
-                    <p class="mt-4">Loading invoices...</p>
-                </div>
-            }
-            else if (!invoices.Any())
-            {
-                <div class="text-center py-12">
-                    <h3 class="text-lg font-semibold text-gray-600 mb-2">No Invoices Found</h3>
-                    <p class="text-gray-500 mb-4">Start by creating your first invoice.</p>
-                    <button @onclick="ShowCreateForm" class="btn btn-primary">
-                        ➕ Create First Invoice
-                    </button>
-                </div>
-            }
-            else
-            {
-                <div class="mb-4">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-blue-800">Total Outstanding</h4>
-                            <p class="text-2xl font-bold text-blue-600">${GetTotalOutstanding():F2}</p>
-                        </div>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-green-800">Total Paid</h4>
-                            <p class="text-2xl font-bold text-green-600">${GetTotalPaid():F2}</p>
-                        </div>
-                        <div class="bg-yellow-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-yellow-800">Overdue</h4>
-                            <p class="text-2xl font-bold text-yellow-600">${GetTotalOverdue():F2}</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <h4 class="font-semibold text-gray-800">Total Invoices</h4>
-                            <p class="text-2xl font-bold text-gray-600">@invoices.Count()</p>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4 mb-4">
-                        <input type="text" @bind="searchTerm" @bind:event="oninput" 
-                               placeholder="Search invoices..." 
-                               class="form-control max-w-md" />
-                        <select @bind="selectedStatusFilter" class="form-control max-w-xs">
-                            <option value="">All Statuses</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Overdue">Overdue</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                        <select @bind="selectedTypeFilter" class="form-control max-w-xs">
-                            <option value="">All Types</option>
-                            <option value="Tuition">Tuition</option>
-                            <option value="Library">Library</option>
-                            <option value="Laboratory">Laboratory</option>
-                            <option value="Sports">Sports</option>
-                            <option value="Transportation">Transportation</option>
-                            <option value="Examination">Examination</option>
-                            <option value="Miscellaneous">Miscellaneous</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Invoice #</th>
-                                <th>Student</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Created</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var invoice in filteredInvoices)
+        @if (showCreateForm)
+        {
+            <MudPaper Elevation="2" Class="pa-4 mb-6" Style="background-color: var(--mud-palette-grey-lighten5);">
+                <MudText Typo="Typo.h5" Class="mb-4">Create New Invoice</MudText>
+                <MudGrid>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="Guid?" @bind-Value="newInvoice.StudentId" 
+                                  Label="Student"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="Guid?" Value="null">Select a student</MudSelectItem>
+                            @foreach (var student in availableStudents)
                             {
-                                <tr>
-                                    <td>
-                                        <div class="font-medium">#@invoice.InvoiceNumber</div>
-                                        <div class="text-sm text-gray-600">@invoice.AcademicYear - @invoice.Term</div>
-                                    </td>
-                                    <td>@invoice.StudentName</td>
-                                    <td>
-                                        <span class="badge @GetTypeBadgeClass(invoice.Type)">
-                                            @invoice.Type
-                                        </span>
-                                    </td>
-                                    <td class="font-medium">${invoice.Amount:F2}</td>
-                                    <td>
-                                        <div class="@GetDueDateClass(invoice.DueDate, invoice.Status)">
-                                            @invoice.DueDate.ToString("MMM dd, yyyy")
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge @GetStatusBadgeClass(invoice.Status)">
-                                            @invoice.Status
-                                        </span>
-                                    </td>
-                                    <td>@invoice.CreatedDate.ToString("MMM dd")</td>
-                                    <td>
-                                        <div class="btn-group">
-                                            <a href="/invoices/@invoice.Id" class="btn btn-sm btn-info" title="View">👁️</a>
-                                            @if (invoice.Status == "Pending" || invoice.Status == "Overdue")
-                                            {
-                                                <button @onclick="(() => MarkAsPaid(invoice.Id))" class="btn btn-sm btn-success" title="Mark as Paid">💰</button>
-                                            }
-                                            <a href="/invoices/edit/@invoice.Id" class="btn btn-sm btn-warning" title="Edit">✏️</a>
-                                            <button @onclick="(() => DeleteInvoice(invoice.Id))" class="btn btn-sm btn-danger" title="Delete">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
+                                <MudSelectItem T="Guid?" Value="student.Id">@student.Name (@student.StudentId)</MudSelectItem>
                             }
-                        </tbody>
-                    </table>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="string" @bind-Value="newInvoice.Type" 
+                                  Label="Type"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="string" Value="@("Tuition")">Tuition Fee</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Library")">Library Fee</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Laboratory")">Laboratory Fee</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Sports")">Sports Fee</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Transportation")">Transportation Fee</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Examination")">Examination Fee</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Miscellaneous")">Miscellaneous</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="string" @bind-Value="newInvoice.AcademicYear" 
+                                  Label="Academic Year"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="string" Value="@("")">Select academic year</MudSelectItem>
+                            @foreach (var year in availableAcademicYears)
+                            {
+                                <MudSelectItem T="string" Value="@year">@year</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="string" @bind-Value="newInvoice.Term" 
+                                  Label="Term"
+                                  Variant="Variant.Outlined">
+                            <MudSelectItem T="string" Value="@("Fall")">Fall Term</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Spring")">Spring Term</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Summer")">Summer Term</MudSelectItem>
+                            <MudSelectItem T="string" Value="@("Annual")">Annual</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudNumericField T="decimal" @bind-Value="newInvoice.Amount" 
+                                        Label="Amount ($)" 
+                                        Variant="Variant.Outlined"
+                                        Min="0"
+                                        Step="0.01m"
+                                        Format="N2" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudDatePicker @bind-Date="newInvoice.DueDate" 
+                                      Label="Due Date"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="newInvoice.Description" 
+                                     Label="Description"
+                                     Variant="Variant.Outlined"
+                                     Lines="3"
+                                     Placeholder="Invoice description..." />
+                    </MudItem>
+                </MudGrid>
+                <div class="d-flex gap-2 mt-4">
+                    <MudButton Variant="Variant.Filled" 
+                              Color="Color.Success" 
+                              StartIcon="Icons.Material.Filled.Save"
+                              OnClick="SaveInvoice">
+                        Create Invoice
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" 
+                              StartIcon="Icons.Material.Filled.Cancel"
+                              OnClick="CancelCreate">
+                        Cancel
+                    </MudButton>
                 </div>
+            </MudPaper>
+        }
 
-                <div class="mt-4 text-sm text-gray-600">
-                    Showing @filteredInvoices.Count() of @invoices.Count() invoices
+        @if (invoices == null)
+        {
+            <div class="text-center py-12">
+                <MudProgressCircular Indeterminate="true" />
+                <MudText Class="mt-4">Loading invoices...</MudText>
+            </div>
+        }
+        else if (!invoices.Any())
+        {
+            <div class="text-center py-12">
+                <MudText Typo="Typo.h5" Class="text-gray-600 mb-2">No Invoices Found</MudText>
+                <MudText Class="text-gray-500 mb-4">Start by creating your first invoice.</MudText>
+                <MudButton Variant="Variant.Filled" 
+                          Color="Color.Primary" 
+                          StartIcon="Icons.Material.Filled.Add"
+                          OnClick="ShowCreateForm">
+                    Create First Invoice
+                </MudButton>
+            </div>
+        }
+        else
+        {
+            <div class="mb-4">
+                <MudGrid>
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-4" Style="background-color: var(--mud-palette-info-lighten5);">
+                            <MudText Typo="Typo.subtitle1" Style="color: var(--mud-palette-info-darken2);">Total Outstanding</MudText>
+                            <MudText Typo="Typo.h4" Style="color: var(--mud-palette-info-darken1);">${GetTotalOutstanding():F2}</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-4" Style="background-color: var(--mud-palette-success-lighten5);">
+                            <MudText Typo="Typo.subtitle1" Style="color: var(--mud-palette-success-darken2);">Total Paid</MudText>
+                            <MudText Typo="Typo.h4" Style="color: var(--mud-palette-success-darken1);">${GetTotalPaid():F2}</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-4" Style="background-color: var(--mud-palette-warning-lighten5);">
+                            <MudText Typo="Typo.subtitle1" Style="color: var(--mud-palette-warning-darken2);">Overdue</MudText>
+                            <MudText Typo="Typo.h4" Style="color: var(--mud-palette-warning-darken1);">${GetTotalOverdue():F2}</MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Class="pa-4" Style="background-color: var(--mud-palette-grey-lighten4);">
+                            <MudText Typo="Typo.subtitle1" Color="Color.Secondary">Total Invoices</MudText>
+                            <MudText Typo="Typo.h4">@invoices.Count()</MudText>
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+
+                <div class="d-flex gap-4 flex-wrap mb-4 mt-4">
+                    <MudTextField @bind-Value="searchTerm" 
+                                 @bind-Value:event="oninput"
+                                 Label="Search invoices..." 
+                                 Variant="Variant.Outlined"
+                                 Adornment="Adornment.Start"
+                                 AdornmentIcon="Icons.Material.Filled.Search"
+                                 Class="flex-grow-1" />
+                    <MudSelect T="string" @bind-Value="selectedStatusFilter" 
+                              Label="Filter by Status"
+                              Variant="Variant.Outlined"
+                              Class="min-width-200">
+                        <MudSelectItem T="string" Value="@("")">All Statuses</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Pending")">Pending</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Paid")">Paid</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Overdue")">Overdue</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Cancelled")">Cancelled</MudSelectItem>
+                    </MudSelect>
+                    <MudSelect T="string" @bind-Value="selectedTypeFilter" 
+                              Label="Filter by Type"
+                              Variant="Variant.Outlined"
+                              Class="min-width-200">
+                        <MudSelectItem T="string" Value="@("")">All Types</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Tuition")">Tuition</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Library")">Library</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Laboratory")">Laboratory</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Sports")">Sports</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Transportation")">Transportation</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Examination")">Examination</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("Miscellaneous")">Miscellaneous</MudSelectItem>
+                    </MudSelect>
                 </div>
-            }
-        </div>
-    </div>
-</div>
+            </div>
+
+            <!-- Desktop Table View -->
+            <div class="d-none d-md-block">
+                <MudTable Items="@filteredInvoices" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@(invoices == null)" LoadingProgressColor="Color.Info">
+                    <HeaderContent>
+                        <MudTh>Invoice #</MudTh>
+                        <MudTh>Student</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Amount</MudTh>
+                        <MudTh>Due Date</MudTh>
+                        <MudTh>Status</MudTh>
+                        <MudTh>Created</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Invoice #">
+                            <div>
+                                <MudText Typo="Typo.body1" Class="font-weight-medium">#@context.InvoiceNumber</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@context.AcademicYear - @context.Term</MudText>
+                            </div>
+                        </MudTd>
+                        <MudTd DataLabel="Student">@context.StudentName</MudTd>
+                        <MudTd DataLabel="Type">
+                            <MudChip T="string" Color="@GetTypeColor(context.Type)" Size="Size.Small">
+                                @context.Type
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Amount">
+                            <MudText Typo="Typo.body1" Class="font-weight-medium">${context.Amount:F2}</MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Due Date">
+                            <MudText Color="@GetDueDateColor(context.DueDate, context.Status)">
+                                @context.DueDate.ToString("MMM dd, yyyy")
+                            </MudText>
+                        </MudTd>
+                        <MudTd DataLabel="Status">
+                            <MudChip T="string" Color="@GetStatusColor(context.Status)" Size="Size.Small">
+                                @context.Status
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="Created">@context.CreatedDate.ToString("MMM dd")</MudTd>
+                        <MudTd DataLabel="Actions">
+                            <MudButtonGroup Variant="Variant.Text" Size="Size.Small">
+                                <MudIconButton Icon="Icons.Material.Filled.Visibility" 
+                                              Color="Color.Info" 
+                                              Href="@($"/invoices/{context.Id}")" />
+                                @if (context.Status == "Pending" || context.Status == "Overdue")
+                                {
+                                    <MudIconButton Icon="Icons.Material.Filled.Payment" 
+                                                  Color="Color.Success" 
+                                                  OnClick="@(() => MarkAsPaid(context.Id))" />
+                                }
+                                <MudIconButton Icon="Icons.Material.Filled.Edit" 
+                                              Color="Color.Warning" 
+                                              Href="@($"/invoices/edit/{context.Id}")" />
+                                <MudIconButton Icon="Icons.Material.Filled.Delete" 
+                                              Color="Color.Error" 
+                                              OnClick="@(() => DeleteInvoice(context.Id))" />
+                            </MudButtonGroup>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="d-block d-md-none">
+                <MudGrid>
+                    @foreach (var invoice in filteredInvoices)
+                    {
+                        <MudItem xs="12">
+                            <MudCard Elevation="3" Class="mb-3">
+                                <MudCardContent>
+                                    <div class="d-flex justify-space-between align-start mb-3">
+                                        <div class="flex-grow-1">
+                                            <MudText Typo="Typo.h6" Class="font-weight-bold">#@invoice.InvoiceNumber</MudText>
+                                            <MudText Typo="Typo.body2" Color="Color.Secondary">@invoice.StudentName</MudText>
+                                        </div>
+                                        <MudChip T="string" Color="@GetStatusColor(invoice.Status)" Size="Size.Small">
+                                            @invoice.Status
+                                        </MudChip>
+                                    </div>
+                                    
+                                    <MudGrid>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Type</MudText>
+                                            <MudChip T="string" Color="@GetTypeColor(invoice.Type)" Size="Size.Small">
+                                                @invoice.Type
+                                            </MudChip>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Amount</MudText>
+                                            <MudText Typo="Typo.h6" Class="font-weight-bold">${invoice.Amount:F2}</MudText>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Due Date</MudText>
+                                            <MudText Typo="Typo.body2" Color="@GetDueDateColor(invoice.DueDate, invoice.Status)">
+                                                @invoice.DueDate.ToString("MMM dd, yyyy")
+                                            </MudText>
+                                        </MudItem>
+                                        <MudItem xs="6">
+                                            <MudText Typo="Typo.caption" Color="Color.Secondary">Academic Year</MudText>
+                                            <MudText Typo="Typo.body2">@invoice.AcademicYear - @invoice.Term</MudText>
+                                        </MudItem>
+                                    </MudGrid>
+                                </MudCardContent>
+                                
+                                <MudCardActions>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Info" 
+                                              StartIcon="Icons.Material.Filled.Visibility"
+                                              Href="@($"/invoices/{invoice.Id}")">
+                                        View
+                                    </MudButton>
+                                    @if (invoice.Status == "Pending" || invoice.Status == "Overdue")
+                                    {
+                                        <MudButton Variant="Variant.Text" 
+                                                  Color="Color.Success" 
+                                                  StartIcon="Icons.Material.Filled.Payment"
+                                                  OnClick="@(() => MarkAsPaid(invoice.Id))">
+                                            Pay
+                                        </MudButton>
+                                    }
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Warning" 
+                                              StartIcon="Icons.Material.Filled.Edit"
+                                              Href="@($"/invoices/edit/{invoice.Id}")">
+                                        Edit
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Text" 
+                                              Color="Color.Error" 
+                                              StartIcon="Icons.Material.Filled.Delete"
+                                              OnClick="@(() => DeleteInvoice(invoice.Id))">
+                                        Delete
+                                    </MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                    }
+                </MudGrid>
+            </div>
+
+            <MudText Class="mt-4 text-sm text-gray-600">
+                Showing @(filteredInvoices?.Count() ?? 0) of @(invoices?.Count() ?? 0) invoices
+            </MudText>
+        }
+    </MudPaper>
+</MudContainer>
 
 @code {
     private List<InvoiceResponse>? invoices = new();
@@ -329,44 +453,44 @@
         return matchesSearch && matchesStatus && matchesType;
     }
 
-    private string GetStatusBadgeClass(string status)
+    private Color GetStatusColor(string status)
     {
         return status?.ToLower() switch
         {
-            "paid" => "badge-success",
-            "pending" => "badge-warning",
-            "overdue" => "badge-danger",
-            "cancelled" => "badge-secondary",
-            _ => "badge-secondary"
+            "paid" => Color.Success,
+            "pending" => Color.Warning,
+            "overdue" => Color.Error,
+            "cancelled" => Color.Default,
+            _ => Color.Default
         };
     }
 
-    private string GetTypeBadgeClass(string type)
+    private Color GetTypeColor(string type)
     {
         return type?.ToLower() switch
         {
-            "tuition" => "badge-primary",
-            "library" => "badge-info",
-            "laboratory" => "badge-warning",
-            "sports" => "badge-success",
-            "transportation" => "badge-secondary",
-            "examination" => "badge-danger",
-            _ => "badge-secondary"
+            "tuition" => Color.Primary,
+            "library" => Color.Info,
+            "laboratory" => Color.Warning,
+            "sports" => Color.Success,
+            "transportation" => Color.Default,
+            "examination" => Color.Error,
+            _ => Color.Default
         };
     }
 
-    private string GetDueDateClass(DateTime dueDate, string status)
+    private Color GetDueDateColor(DateTime dueDate, string status)
     {
-        if (status == "Paid") return "text-gray-700";
+        if (status == "Paid") return Color.Default;
         
         var daysUntilDue = (dueDate - DateTime.Now).Days;
         
         if (daysUntilDue < 0)
-            return "text-red-600 font-semibold"; // Overdue
+            return Color.Error; // Overdue
         else if (daysUntilDue <= 3)
-            return "text-orange-600 font-semibold"; // Due soon
+            return Color.Warning; // Due soon
         else
-            return "text-gray-700"; // Future
+            return Color.Default; // Future
     }
 
     private void ShowCreateForm()
@@ -390,9 +514,9 @@
 
     private void SaveInvoice()
     {
-        if (invoices != null && !string.IsNullOrWhiteSpace(newInvoice.StudentId) && newInvoice.Amount > 0)
+        if (invoices != null && newInvoice.StudentId.HasValue && newInvoice.Amount > 0)
         {
-            var selectedStudent = availableStudents.FirstOrDefault(s => s.Id.ToString() == newInvoice.StudentId);
+            var selectedStudent = availableStudents.FirstOrDefault(s => s.Id == newInvoice.StudentId.Value);
 
             var invoice = new InvoiceResponse
             {
@@ -401,7 +525,7 @@
                 StudentName = selectedStudent?.Name ?? "Unknown Student",
                 Type = newInvoice.Type,
                 Amount = newInvoice.Amount,
-                DueDate = newInvoice.DueDate,
+                DueDate = newInvoice.DueDate ?? DateTime.Now.AddDays(30),
                 Status = "Pending",
                 AcademicYear = newInvoice.AcademicYear,
                 Term = newInvoice.Term,
@@ -437,10 +561,10 @@
     // Simplified models
     public class CreateInvoiceRequest
     {
-        public string StudentId { get; set; } = "";
+        public Guid? StudentId { get; set; }
         public string Type { get; set; } = "Tuition";
         public decimal Amount { get; set; }
-        public DateTime DueDate { get; set; } = DateTime.Now.AddDays(30);
+        public DateTime? DueDate { get; set; } = DateTime.Now.AddDays(30);
         public string AcademicYear { get; set; } = "";
         public string Term { get; set; } = "Fall";
         public string Description { get; set; } = "";
